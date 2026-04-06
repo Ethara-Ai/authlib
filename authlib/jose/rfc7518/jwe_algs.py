@@ -30,7 +30,7 @@ class DirectAlgorithm(JWEAlgorithm):
         return OctKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        return {}
+        pass
 
     def wrap(self, enc_alg, headers, key, preset=None):
         cek = key.get_op_key("encrypt")
@@ -59,8 +59,7 @@ class RSAAlgorithm(JWEAlgorithm):
         return RSAKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        cek = enc_alg.generate_cek()
-        return {"cek": cek}
+        pass
 
     def wrap(self, enc_alg, headers, key, preset=None):
         if preset and "cek" in preset:
@@ -93,8 +92,7 @@ class AESAlgorithm(JWEAlgorithm):
         return OctKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        cek = enc_alg.generate_cek()
-        return {"cek": cek}
+        pass
 
     def _check_key(self, key):
         if len(key) * 8 != self.key_size:
@@ -134,8 +132,7 @@ class AESGCMAlgorithm(JWEAlgorithm):
         return OctKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        cek = enc_alg.generate_cek()
-        return {"cek": cek}
+        pass
 
     def _check_key(self, key):
         if len(key) * 8 != self.key_size:
@@ -212,13 +209,7 @@ class ECDHESAlgorithm(JWEAlgorithm):
         return ECKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        epk = self._generate_ephemeral_key(key)
-        h = self._prepare_headers(epk)
-        preset = {"epk": epk, "header": h}
-        if self.key_size is not None:
-            cek = enc_alg.generate_cek()
-            preset["cek"] = cek
-        return preset
+        pass
 
     def compute_fixed_info(self, headers, bit_size):
         # AlgorithmID

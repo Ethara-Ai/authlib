@@ -246,16 +246,7 @@ class UserInfo(dict):
 
     def filter(self, scope: str):
         """Return a new UserInfo object containing only the claims matching the scope passed in parameter."""
-        scope = scope_to_list(scope)
-        filtered_claims = [
-            claim
-            for scope_part in scope
-            for claim in self.SCOPES_CLAIMS_MAPPING.get(scope_part, [])
-        ]
-        filtered_items = {
-            key: val for key, val in self.items() if key in filtered_claims
-        }
-        return UserInfo(filtered_items)
+        pass
 
     def __getattr__(self, key):
         try:
@@ -267,10 +258,7 @@ class UserInfo(dict):
 
 
 def get_claim_cls_by_response_type(response_type):
-    claims_classes = (CodeIDToken, ImplicitIDToken, HybridIDToken)
-    for claims_cls in claims_classes:
-        if response_type in claims_cls.RESPONSE_TYPES:
-            return claims_cls
+    pass
 
 
 def _verify_hash(signature, s, alg):

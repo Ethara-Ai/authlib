@@ -23,31 +23,27 @@ class OAuth2Payload:
 
         :return: string
         """
-        return self.data.get("client_id")
+        pass
 
     @property
     def response_type(self) -> str:
-        rt = self.data.get("response_type")
-        if rt and " " in rt:
-            # sort multiple response types
-            return " ".join(sorted(rt.split()))
-        return rt
+        pass
 
     @property
     def grant_type(self) -> str:
-        return self.data.get("grant_type")
+        pass
 
     @property
     def redirect_uri(self):
-        return self.data.get("redirect_uri")
+        pass
 
     @property
     def scope(self) -> str:
-        return self.data.get("scope")
+        pass
 
     @property
     def state(self):
-        return self.data.get("state")
+        pass
 
 
 class BasicOAuth2Payload(OAuth2Payload):
@@ -57,11 +53,11 @@ class BasicOAuth2Payload(OAuth2Payload):
 
     @property
     def data(self):
-        return self._data
+        pass
 
     @property
     def datalist(self) -> defaultdict[str, list]:
-        return self._datalist
+        pass
 
 
 class OAuth2Request(OAuth2Payload):
@@ -98,83 +94,47 @@ class OAuth2Request(OAuth2Payload):
 
     @property
     def form(self):
-        if self._body:
-            return self._body
-        raise NotImplementedError()
+        pass
 
     @property
     def data(self):
-        deprecate(
-            "'request.data' is deprecated in favor of 'request.payload.data'",
-            version="1.8",
-        )
-        return self.payload.data
+        pass
 
     @property
     def datalist(self) -> defaultdict[str, list]:
-        deprecate(
-            "'request.datalist' is deprecated in favor of 'request.payload.datalist'",
-            version="1.8",
-        )
-        return self.payload.datalist
+        pass
 
     @property
     def client_id(self) -> str:
-        deprecate(
-            "'request.client_id' is deprecated in favor of 'request.payload.client_id'",
-            version="1.8",
-        )
-        return self.payload.client_id
+        pass
 
     @property
     def response_type(self) -> str:
-        deprecate(
-            "'request.response_type' is deprecated in favor of 'request.payload.response_type'",
-            version="1.8",
-        )
-        return self.payload.response_type
+        pass
 
     @property
     def grant_type(self) -> str:
-        deprecate(
-            "'request.grant_type' is deprecated in favor of 'request.payload.grant_type'",
-            version="1.8",
-        )
-        return self.payload.grant_type
+        pass
 
     @property
     def redirect_uri(self):
-        deprecate(
-            "'request.redirect_uri' is deprecated in favor of 'request.payload.redirect_uri'",
-            version="1.8",
-        )
-        return self.payload.redirect_uri
+        pass
 
     @property
     def scope(self) -> str:
-        if self._scope is not None:
-            return self._scope
-        return self.payload.scope
+        pass
 
     @scope.setter
     def scope(self, value: str):
-        self._scope = value
+        pass
 
     @property
     def state(self):
-        deprecate(
-            "'request.state' is deprecated in favor of 'request.payload.state'",
-            version="1.8",
-        )
-        return self.payload.state
+        pass
 
     @property
     def body(self):
-        deprecate(
-            "'request.body' is deprecated. Use the payload system instead.",
-            version="1.8",
-        )
-        return self._body
+        pass
 
 
 class JsonPayload:
@@ -192,8 +152,4 @@ class JsonRequest:
 
     @property
     def data(self):
-        deprecate(
-            "'request.data' is deprecated in favor of 'request.payload.data'",
-            version="1.8",
-        )
-        return self.payload.data
+        pass

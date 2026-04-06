@@ -47,7 +47,7 @@ class ClientAuth:
 
             Client.register_signature_method("custom-name", custom_sign_method)
         """
-        cls.SIGNATURE_METHODS[name] = sign
+        pass
 
     def __init__(
         self,
@@ -164,25 +164,7 @@ class ClientAuth:
         Parameters may be included from the body if the content-type is
         urlencoded, if no content type is set, a guess is made.
         """
-        content_type = to_native(headers.get("Content-Type", ""))
-        if self.signature_type == SIGNATURE_TYPE_BODY:
-            content_type = CONTENT_TYPE_FORM_URLENCODED
-        elif not content_type and extract_params(body):
-            content_type = CONTENT_TYPE_FORM_URLENCODED
-
-        if CONTENT_TYPE_FORM_URLENCODED in content_type:
-            headers["Content-Type"] = CONTENT_TYPE_FORM_URLENCODED
-            if isinstance(body, bytes):
-                body = body.decode()
-            uri, headers, body = self.sign(method, uri, headers, body)
-        elif self.force_include_body:
-            # To allow custom clients to work on non form encoded bodies.
-            uri, headers, body = self.sign(method, uri, headers, body)
-        else:
-            # Omit body data in the signing of non form-encoded requests
-            uri, headers, _ = self.sign(method, uri, headers, b"")
-            body = b""
-        return uri, headers, body
+        pass
 
 
 def generate_nonce():

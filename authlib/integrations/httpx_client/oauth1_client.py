@@ -22,13 +22,7 @@ class OAuth1Auth(Auth, ClientAuth):
     requires_request_body = True
 
     def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:
-        url, headers, body = self.prepare(
-            request.method, str(request.url), request.headers, request.content
-        )
-        headers["Content-Length"] = str(len(body))
-        yield build_request(
-            url=url, headers=headers, body=body, initial_request=request
-        )
+        pass
 
 
 class AsyncOAuth1Client(_OAuth1Client, httpx.AsyncClient):
@@ -79,13 +73,7 @@ class AsyncOAuth1Client(_OAuth1Client, httpx.AsyncClient):
         :param kwargs: Extra parameters to include for fetching access token.
         :return: A token dict.
         """
-        if verifier:
-            self.auth.verifier = verifier
-        if not self.auth.verifier:
-            self.handle_error("missing_verifier", 'Missing "verifier" value')
-        token = await self._fetch_token(url, **kwargs)
-        self.auth.verifier = None
-        return token
+        pass
 
     async def _fetch_token(self, url, **kwargs):
         resp = await self.post(url, **kwargs)

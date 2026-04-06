@@ -24,19 +24,4 @@ def scope_to_list(scope):
 
 
 def extract_basic_authorization(headers):
-    auth = headers.get("Authorization")
-    if not auth or " " not in auth:
-        return None, None
-
-    auth_type, auth_token = auth.split(None, 1)
-    if auth_type.lower() != "basic":
-        return None, None
-
-    try:
-        query = to_unicode(base64.b64decode(auth_token))
-    except (binascii.Error, TypeError):
-        return None, None
-    if ":" in query:
-        username, password = query.split(":", 1)
-        return unquote(username), unquote(password)
-    return query, None
+    pass

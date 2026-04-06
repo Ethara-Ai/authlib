@@ -69,29 +69,7 @@ class JWTBearerClientAssertion:
 
     def verify_claims(self, claims: jwt.Claims):
         # iss and sub MUST be the client_id
-        options = {
-            "iss": {"essential": True},
-            "sub": {"essential": True},
-            "aud": {"essential": True, "values": self.get_audiences()},
-            "exp": {"essential": True},
-        }
-        claims_requests = jwt.JWTClaimsRegistry(leeway=self.leeway, **options)
-
-        try:
-            claims_requests.validate(claims)
-        except JoseError as e:
-            log.debug("Assertion Error: %r", e)
-            raise InvalidClientError(description=e.description) from e
-
-        if claims["sub"] != claims["iss"]:
-            raise InvalidClientError(description="Issuer and Subject MUST match.")
-
-        if self._validate_jti:
-            if "jti" not in claims:
-                raise InvalidClientError(description="Missing JWT ID.")
-
-            if not self.validate_jti(claims, claims["jti"]):
-                raise InvalidClientError(description="JWT ID is used before.")
+        pass
 
     def get_audiences(self):
         """Return a list of valid audience identifiers for this authorization
@@ -120,14 +98,7 @@ class JWTBearerClientAssertion:
 
         .. _`Section 3.1`: https://tools.ietf.org/html/rfc7523#section-3.1
         """
-        try:
-            token = jwt.decode(assertion, resolve_key)
-        except JoseError as e:
-            log.debug("Assertion Error: %r", e)
-            raise InvalidClientError(description=e.description) from e
-
-        self.verify_claims(token.claims)
-        return token.claims
+        pass
 
     def authenticate_client(self, client):
         if client.check_endpoint_auth_method(self.CLIENT_AUTH_METHOD, "token"):
@@ -137,12 +108,7 @@ class JWTBearerClientAssertion:
         )
 
     def extract_assertion(self, assertion: str):
-        obj = jws.extract_compact(to_bytes(assertion))
-        try:
-            claims = json_loads(obj.payload)
-        except ValueError:
-            raise InvalidClientError(description="Invalid JWT payload.") from None
-        return obj.headers(), claims
+        pass
 
     def validate_jti(self, claims, jti):
         """Validate if the given ``jti`` value is used before. Developers

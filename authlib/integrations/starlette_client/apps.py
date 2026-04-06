@@ -12,15 +12,7 @@ from ..httpx_client import AsyncOAuth2Client
 
 class StarletteAppMixin:
     async def save_authorize_data(self, request, **kwargs):
-        state = kwargs.pop("state", None)
-        if state:
-            if self.framework.cache:
-                session = None
-            else:
-                session = request.session
-            await self.framework.set_state_data(session, state, kwargs)
-        else:
-            raise RuntimeError("Missing state value")
+        pass
 
     async def authorize_redirect(self, request, redirect_uri=None, **kwargs):
         """Create a HTTP Redirect for Authorization Endpoint.
@@ -30,31 +22,14 @@ class StarletteAppMixin:
         :param kwargs: Extra parameters to include.
         :return: A HTTP redirect response.
         """
-        # Handle Starlette >= 0.26.0 where redirect_uri may now be a URL and not a string
-        if redirect_uri and isinstance(redirect_uri, URL):
-            redirect_uri = str(redirect_uri)
-        rv = await self.create_authorization_url(redirect_uri, **kwargs)
-        await self.save_authorize_data(request, redirect_uri=redirect_uri, **rv)
-        return RedirectResponse(rv["url"], status_code=302)
+        pass
 
 
 class StarletteOAuth1App(StarletteAppMixin, AsyncOAuth1Mixin, BaseApp):
     client_cls = AsyncOAuth1Client
 
     async def authorize_access_token(self, request, **kwargs):
-        params = dict(request.query_params)
-        state = params.get("oauth_token")
-        if not state:
-            raise OAuthError(description='Missing "oauth_token" parameter')
-
-        data = await self.framework.get_state_data(request.session, state)
-        if not data:
-            raise OAuthError(description='Missing "request_token" in temporary data')
-
-        params["request_token"] = data["request_token"]
-        params.update(kwargs)
-        await self.framework.clear_state_data(request.session, state)
-        return await self.fetch_access_token(**params)
+        pass
 
 
 class StarletteOAuth2App(
@@ -73,26 +48,7 @@ class StarletteOAuth2App(
         :param kwargs: Extra parameters (state, client_id, logout_hint, ui_locales).
         :return: A HTTP redirect response.
         """
-        if post_logout_redirect_uri and isinstance(post_logout_redirect_uri, URL):
-            post_logout_redirect_uri = str(post_logout_redirect_uri)
-        result = await self.create_logout_url(
-            post_logout_redirect_uri=post_logout_redirect_uri,
-            id_token_hint=id_token_hint,
-            **kwargs,
-        )
-        if result.get("state"):
-            if self.framework.cache:
-                session = None
-            else:
-                session = request.session
-            await self.framework.set_state_data(
-                session,
-                result["state"],
-                {
-                    "post_logout_redirect_uri": post_logout_redirect_uri,
-                },
-            )
-        return RedirectResponse(result["url"], status_code=302)
+        pass
 
     async def validate_logout_response(self, request):
         """Validate the state parameter from the logout callback.
@@ -101,61 +57,7 @@ class StarletteOAuth2App(
         :return: The state data dict.
         :raises OAuthError: If state is missing or invalid.
         """
-        state = request.query_params.get("state")
-        if not state:
-            raise OAuthError(description='Missing "state" parameter')
-
-        if self.framework.cache:
-            session = None
-        else:
-            session = request.session
-
-        state_data = await self.framework.get_state_data(session, state)
-        if not state_data:
-            raise OAuthError(description='Invalid "state" parameter')
-
-        await self.framework.clear_state_data(session, state)
-        return state_data
+        pass
 
     async def authorize_access_token(self, request, **kwargs):
-        if request.scope.get("method", "GET") == "GET":
-            error = request.query_params.get("error")
-            if error:
-                description = request.query_params.get("error_description")
-                raise OAuthError(error=error, description=description)
-
-            params = {
-                "code": request.query_params.get("code"),
-                "state": request.query_params.get("state"),
-            }
-        else:
-            async with request.form() as form:
-                params = {
-                    "code": form.get("code"),
-                    "state": form.get("state"),
-                }
-
-        if self.framework.cache:
-            session = None
-        else:
-            session = request.session
-
-        state_data = await self.framework.get_state_data(session, params.get("state"))
-        await self.framework.clear_state_data(session, params.get("state"))
-        params = self._format_state_params(state_data, params)
-
-        claims_options = kwargs.pop("claims_options", None)
-        claims_cls = kwargs.pop("claims_cls", None)
-        leeway = kwargs.pop("leeway", 120)
-        token = await self.fetch_access_token(**params, **kwargs)
-
-        if "id_token" in token and "nonce" in state_data:
-            userinfo = await self.parse_id_token(
-                token,
-                nonce=state_data["nonce"],
-                claims_options=claims_options,
-                claims_cls=claims_cls,
-                leeway=leeway,
-            )
-            token["userinfo"] = userinfo
-        return token
+        pass

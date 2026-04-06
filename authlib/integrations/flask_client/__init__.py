@@ -25,17 +25,7 @@ class OAuth(BaseOAuth):
         """Initialize lazy for Flask app. This is usually used for Flask application
         factory pattern.
         """
-        self.app = app
-        if cache is not None:
-            self.cache = cache
-
-        if fetch_token:
-            self.fetch_token = fetch_token
-        if update_token:
-            self.update_token = update_token
-
-        app.extensions = getattr(app, "extensions", {})
-        app.extensions["authlib.integrations.flask_client"] = self
+        pass
 
     def create_client(self, name):
         if not self.app:

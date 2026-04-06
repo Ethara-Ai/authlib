@@ -21,9 +21,7 @@ class AuthorizationServer(BaseServer):
     TEMPORARY_CREDENTIALS_METHOD = "POST"
 
     def _get_client(self, request):
-        client = self.get_client_by_id(request.client_id)
-        request.client = client
-        return client
+        pass
 
     def create_oauth1_request(self, request):
         raise NotImplementedError()
@@ -38,34 +36,7 @@ class AuthorizationServer(BaseServer):
 
     def validate_temporary_credentials_request(self, request):
         """Validate HTTP request for temporary credentials."""
-        # The client obtains a set of temporary credentials from the server by
-        # making an authenticated (Section 3) HTTP "POST" request to the
-        # Temporary Credential Request endpoint (unless the server advertises
-        # another HTTP request method for the client to use).
-        if request.method.upper() != self.TEMPORARY_CREDENTIALS_METHOD:
-            raise MethodNotAllowedError()
-
-        # REQUIRED parameter
-        if not request.client_id:
-            raise MissingRequiredParameterError("oauth_consumer_key")
-
-        # REQUIRED parameter
-        oauth_callback = request.redirect_uri
-        if not request.redirect_uri:
-            raise MissingRequiredParameterError("oauth_callback")
-
-        # An absolute URI or
-        # other means (the parameter value MUST be set to "oob"
-        if oauth_callback != "oob" and not is_valid_url(oauth_callback):
-            raise InvalidRequestError('Invalid "oauth_callback" value')
-
-        client = self._get_client(request)
-        if not client:
-            raise InvalidClientError()
-
-        self.validate_timestamp_and_nonce(request)
-        self.validate_oauth_signature(request)
-        return request
+        pass
 
     def create_temporary_credentials_response(self, request=None):
         """Validate temporary credentials token request and create response
@@ -98,32 +69,11 @@ class AuthorizationServer(BaseServer):
         :param request: OAuth1Request instance.
         :returns: (status_code, body, headers)
         """
-        try:
-            request = self.create_oauth1_request(request)
-            self.validate_temporary_credentials_request(request)
-        except OAuth1Error as error:
-            return self.handle_error_response(error)
-
-        credential = self.create_temporary_credential(request)
-        payload = [
-            ("oauth_token", credential.get_oauth_token()),
-            ("oauth_token_secret", credential.get_oauth_token_secret()),
-            ("oauth_callback_confirmed", True),
-        ]
-        return self.handle_response(200, payload, self.TOKEN_RESPONSE_HEADER)
+        pass
 
     def validate_authorization_request(self, request):
         """Validate the request for resource owner authorization."""
-        if not request.token:
-            raise MissingRequiredParameterError("oauth_token")
-
-        credential = self.get_temporary_credential(request)
-        if not credential:
-            raise InvalidTokenError()
-
-        # assign credential for later use
-        request.credential = credential
-        return request
+        pass
 
     def create_authorization_response(self, request, grant_user=None):
         """Validate authorization request and create authorization response.
@@ -147,56 +97,11 @@ class AuthorizationServer(BaseServer):
         :param grant_user: if granted, pass the grant user, otherwise None.
         :returns: (status_code, body, headers)
         """
-        request = self.create_oauth1_request(request)
-        # authorize endpoint should try catch this error
-        self.validate_authorization_request(request)
-
-        temporary_credentials = request.credential
-        redirect_uri = temporary_credentials.get_redirect_uri()
-        if not redirect_uri or redirect_uri == "oob":
-            client_id = temporary_credentials.get_client_id()
-            client = self.get_client_by_id(client_id)
-            redirect_uri = client.get_default_redirect_uri()
-
-        if grant_user is None:
-            error = AccessDeniedError()
-            location = add_params_to_uri(redirect_uri, error.get_body())
-            return self.handle_response(302, "", [("Location", location)])
-
-        request.user = grant_user
-        verifier = self.create_authorization_verifier(request)
-
-        params = [("oauth_token", request.token), ("oauth_verifier", verifier)]
-        location = add_params_to_uri(redirect_uri, params)
-        return self.handle_response(302, "", [("Location", location)])
+        pass
 
     def validate_token_request(self, request):
         """Validate request for issuing token."""
-        if not request.client_id:
-            raise MissingRequiredParameterError("oauth_consumer_key")
-
-        client = self._get_client(request)
-        if not client:
-            raise InvalidClientError()
-
-        if not request.token:
-            raise MissingRequiredParameterError("oauth_token")
-
-        token = self.get_temporary_credential(request)
-        if not token:
-            raise InvalidTokenError()
-
-        verifier = request.oauth_params.get("oauth_verifier")
-        if not verifier:
-            raise MissingRequiredParameterError("oauth_verifier")
-
-        if not token.check_verifier(verifier):
-            raise InvalidRequestError('Invalid "oauth_verifier"')
-
-        request.credential = token
-        self.validate_timestamp_and_nonce(request)
-        self.validate_oauth_signature(request)
-        return request
+        pass
 
     def create_token_response(self, request):
         """Validate token request and create token response. Assuming the
@@ -232,24 +137,7 @@ class AuthorizationServer(BaseServer):
         :param request: OAuth1Request instance.
         :returns: (status_code, body, headers)
         """
-        try:
-            request = self.create_oauth1_request(request)
-        except OAuth1Error as error:
-            return self.handle_error_response(error)
-
-        try:
-            self.validate_token_request(request)
-        except OAuth1Error as error:
-            self.delete_temporary_credential(request)
-            return self.handle_error_response(error)
-
-        credential = self.create_token_credential(request)
-        payload = [
-            ("oauth_token", credential.get_oauth_token()),
-            ("oauth_token_secret", credential.get_oauth_token_secret()),
-        ]
-        self.delete_temporary_credential(request)
-        return self.handle_response(200, payload, self.TOKEN_RESPONSE_HEADER)
+        pass
 
     def create_temporary_credential(self, request):
         """Generate and save a temporary credential into database or cache.

@@ -154,7 +154,7 @@ class AuthorizationServer(Hookable):
         self._client_auth.register(method, func)
 
     def register_extension(self, extension):
-        self._extensions.append(extension(self))
+        pass
 
     def get_error_uri(self, request, error):
         """Return a URI for the given error, framework may implement this method."""
@@ -211,10 +211,7 @@ class AuthorizationServer(Hookable):
         :param grant_cls: a grant class.
         :param extensions: extensions for the grant class.
         """
-        if hasattr(grant_cls, "check_authorization_endpoint"):
-            self._authorization_grants.append((grant_cls, extensions))
-        if hasattr(grant_cls, "check_token_endpoint"):
-            self._token_grants.append((grant_cls, extensions))
+        pass
 
     def register_endpoint(self, endpoint: type[Endpoint] | Endpoint):
         """Add extra endpoint to authorization server. e.g.
@@ -224,13 +221,7 @@ class AuthorizationServer(Hookable):
 
         :param endpoint: An endpoint class or instance.
         """
-        if isinstance(endpoint, type):
-            endpoint = endpoint(self)
-        else:
-            endpoint.server = self
-
-        endpoints = self._endpoints.setdefault(endpoint.ENDPOINT_NAME, [])
-        endpoints.append(endpoint)
+        pass
 
     @hooked
     def get_authorization_grant(self, request):
@@ -239,36 +230,13 @@ class AuthorizationServer(Hookable):
         :param request: OAuth2Request instance.
         :return: grant instance
         """
-        for grant_cls, extensions in self._authorization_grants:
-            if grant_cls.check_authorization_endpoint(request):
-                return _create_grant(grant_cls, extensions, request, self)
-
-        raise UnsupportedResponseTypeError(
-            f"The response type '{request.payload.response_type}' is not supported by the server.",
-            request.payload.response_type,
-            redirect_uri=request.payload.redirect_uri,
-        )
+        pass
 
     def get_consent_grant(self, request=None, end_user=None):
         """Validate current HTTP request for authorization page. This page
         is designed for resource owner to grant or deny the authorization.
         """
-        request = self.create_oauth2_request(request)
-
-        try:
-            request.user = end_user
-
-            grant = self.get_authorization_grant(request)
-            grant.validate_no_multiple_request_parameter(request)
-            grant.validate_consent_request()
-
-        except OAuth2Error as error:
-            # REQUIRED if a "state" parameter was present in the client
-            # authorization request.  The exact value received from the
-            # client.
-            error.state = request.payload.state
-            raise
-        return grant
+        pass
 
     def get_token_grant(self, request):
         """Find the token grant for current request.
@@ -276,10 +244,7 @@ class AuthorizationServer(Hookable):
         :param request: OAuth2Request instance.
         :return: grant instance
         """
-        for grant_cls, extensions in self._token_grants:
-            if grant_cls.check_token_endpoint(request):
-                return _create_grant(grant_cls, extensions, request, self)
-        raise UnsupportedGrantTypeError(request.payload.grant_type)
+        pass
 
     def validate_endpoint_request(self, name, request=None) -> EndpointRequest:
         """Validate endpoint request and return the validated request object.
@@ -300,12 +265,7 @@ class AuthorizationServer(Hookable):
                 return render_template("confirm_logout.html", ...)
             return server.create_endpoint_response("end_session", req)
         """
-        if name not in self._endpoints:
-            raise RuntimeError(f"There is no '{name}' endpoint.")
-
-        endpoint = self._endpoints[name][0]
-        request = endpoint.create_endpoint_request(request)
-        return endpoint.validate_request(request)
+        pass
 
     def create_endpoint_response(self, name, request=None):
         """Validate endpoint request and create endpoint response.
@@ -356,53 +316,18 @@ class AuthorizationServer(Hookable):
             it is None.
         :returns: Response
         """
-        if not isinstance(request, OAuth2Request):
-            request = self.create_oauth2_request(request)
-
-        if not grant:
-            deprecate("The 'grant' parameter will become mandatory.", version="1.8")
-            try:
-                grant = self.get_authorization_grant(request)
-            except UnsupportedResponseTypeError as error:
-                error.state = request.payload.state
-                return self.handle_error_response(request, error)
-
-        try:
-            redirect_uri = grant.validate_authorization_request()
-            args = grant.create_authorization_response(redirect_uri, grant_user)
-            response = self.handle_response(*args)
-        except OAuth2Error as error:
-            error.state = request.payload.state
-            response = self.handle_error_response(request, error)
-
-        grant.execute_hook("after_authorization_response", response)
-        return response
+        pass
 
     def create_token_response(self, request=None):
         """Validate token request and create token response.
 
         :param request: HTTP request instance
         """
-        request = self.create_oauth2_request(request)
-        try:
-            grant = self.get_token_grant(request)
-        except UnsupportedGrantTypeError as error:
-            return self.handle_error_response(request, error)
-
-        try:
-            grant.validate_token_request()
-            args = grant.create_token_response()
-            return self.handle_response(*args)
-        except OAuth2Error as error:
-            return self.handle_error_response(request, error)
+        pass
 
     def handle_error_response(self, request, error):
         return self.handle_response(*error(self.get_error_uri(request, error)))
 
 
 def _create_grant(grant_cls, extensions, request, server):
-    grant = grant_cls(request, server)
-    if extensions:
-        for ext in extensions:
-            ext(grant)
-    return grant
+    pass

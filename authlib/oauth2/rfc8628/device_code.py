@@ -90,27 +90,7 @@ class DeviceCodeGrant(BaseGrant, TokenEndpointMixin):
             &device_code=GmRhmhcxhwAzkoEqiMEg_DnyEysNkuNhszIySk9eS
             &client_id=1406020730
         """
-        device_code = self.request.payload.data.get("device_code")
-        if not device_code:
-            raise InvalidRequestError("Missing 'device_code' in payload")
-
-        client = self.authenticate_token_endpoint_client()
-        if not client.check_grant_type(self.GRANT_TYPE):
-            raise UnauthorizedClientError(
-                f"The client is not authorized to use 'response_type={self.GRANT_TYPE}'",
-            )
-
-        credential = self.query_device_credential(device_code)
-        if not credential:
-            raise InvalidRequestError("Invalid 'device_code' in payload")
-
-        if credential.get_client_id() != client.get_client_id():
-            raise UnauthorizedClientError()
-
-        user = self.validate_device_credential(credential)
-        self.request.user = user
-        self.request.client = client
-        self.request.credential = credential
+        pass
 
     @hooked
     def create_token_response(self):
@@ -118,34 +98,10 @@ class DeviceCodeGrant(BaseGrant, TokenEndpointMixin):
         authorization server issues an access token and optional refresh
         token.
         """
-        client = self.request.client
-        scope = self.request.credential.get_scope()
-        token = self.generate_token(
-            user=self.request.user,
-            scope=scope,
-            include_refresh_token=client.check_grant_type("refresh_token"),
-        )
-        log.debug("Issue token %r to %r", token, client)
-        self.save_token(token)
-        return 200, token, self.TOKEN_RESPONSE_HEADER
+        pass
 
     def validate_device_credential(self, credential):
-        if credential.is_expired():
-            raise ExpiredTokenError()
-
-        user_code = credential.get_user_code()
-        user_grant = self.query_user_grant(user_code)
-
-        if user_grant is not None:
-            user, approved = user_grant
-            if not approved:
-                raise AccessDeniedError()
-            return user
-
-        if self.should_slow_down(credential):
-            raise SlowDownError()
-
-        raise AuthorizationPendingError()
+        pass
 
     def query_device_credential(self, device_code):
         """Get device credential from previously savings via ``DeviceAuthorizationEndpoint``.

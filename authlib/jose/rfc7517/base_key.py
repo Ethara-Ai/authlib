@@ -35,19 +35,11 @@ class Key:
 
     @property
     def tokens(self):
-        if not self._dict_data:
-            self.load_dict_key()
-
-        rv = dict(self._dict_data)
-        rv["kty"] = self.kty
-        for k in self.ALLOWED_PARAMS:
-            if k not in rv and k in self.options:
-                rv[k] = self.options[k]
-        return rv
+        pass
 
     @property
     def kid(self):
-        return self.tokens.get("kid")
+        pass
 
     def keys(self):
         return self.tokens.keys()
@@ -92,8 +84,7 @@ class Key:
 
     def as_json(self, is_private=False, **params):
         """Represent this key as a JSON string."""
-        obj = self.as_dict(is_private, **params)
-        return json_dumps(obj)
+        pass
 
     def thumbprint(self):
         """Implementation of RFC7638 JSON Web Key (JWK) Thumbprint."""

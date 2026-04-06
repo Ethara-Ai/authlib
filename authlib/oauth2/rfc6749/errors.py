@@ -61,8 +61,7 @@ class InsecureTransportError(OAuth2Error):
     @classmethod
     def check(cls, uri):
         """Check and raise InsecureTransportError with the given URI."""
-        if not is_secure_transport(uri):
-            raise cls()
+        pass
 
 
 class InvalidRequestError(OAuth2Error):

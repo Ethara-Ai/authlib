@@ -11,10 +11,10 @@ class IntrospectionToken(dict, TokenMixin):
     def get_expires_in(self):
         # this method is only used in refresh token,
         # no need to implement it
-        return 0
+        pass
 
     def get_expires_at(self):
-        return self.get("exp", 0)
+        pass
 
     def __getattr__(self, key):
         # https://tools.ietf.org/html/rfc7662#section-2.2

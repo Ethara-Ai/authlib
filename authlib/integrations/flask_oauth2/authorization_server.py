@@ -49,11 +49,7 @@ class AuthorizationServer(_AuthorizationServer):
 
     def init_app(self, app, query_client=None, save_token=None):
         """Initialize later with Flask app instance."""
-        if query_client is not None:
-            self._query_client = query_client
-        if save_token is not None:
-            self._save_token = save_token
-        self.load_config(app.config)
+        pass
 
     def load_config(self, config):
         self.register_token_generator(
@@ -66,7 +62,7 @@ class AuthorizationServer(_AuthorizationServer):
         return self._query_client(client_id)
 
     def save_token(self, token, request):
-        return self._save_token(token, request)
+        pass
 
     def get_error_uri(self, request, error):
         if self._error_uris:
@@ -146,7 +142,7 @@ def create_token_expires_in_generator(expires_in_conf=None):
         data.update(expires_in_conf)
 
     def expires_in(client, grant_type):
-        return data.get(grant_type, BearerTokenGenerator.DEFAULT_EXPIRES_IN)
+        pass
 
     return expires_in
 

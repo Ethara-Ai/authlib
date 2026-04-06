@@ -110,7 +110,7 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
 
         .. _`Section 4.1.1`: https://tools.ietf.org/html/rfc6749#section-4.1.1
         """
-        return validate_code_authorization_request(self)
+        pass
 
     def create_authorization_response(self, redirect_uri: str, grant_user):
         """If the resource owner grants the access request, the authorization
@@ -151,20 +151,7 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
             resource owner, otherwise pass None.
         :returns: (status_code, body, headers)
         """
-        if not grant_user:
-            raise AccessDeniedError(redirect_uri=redirect_uri)
-
-        self.request.user = grant_user
-
-        code = self.generate_authorization_code()
-        self.save_authorization_code(code, self.request)
-
-        params = [("code", code)]
-        if self.request.payload.state:
-            params.append(("state", self.request.payload.state))
-        uri = add_params_to_uri(redirect_uri, params)
-        headers = [("Location", uri)]
-        return 302, "", headers
+        pass
 
     @hooked
     def validate_token_request(self):
@@ -207,39 +194,7 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
 
         .. _`Section 4.1.3`: https://tools.ietf.org/html/rfc6749#section-4.1.3
         """
-        # ignore validate for grant_type, since it is validated by
-        # check_token_endpoint
-
-        # authenticate the client if client authentication is included
-        client = self.authenticate_token_endpoint_client()
-
-        log.debug("Validate token request of %r", client)
-        if not client.check_grant_type(self.GRANT_TYPE):
-            raise UnauthorizedClientError(
-                f"The client is not authorized to use 'grant_type={self.GRANT_TYPE}'"
-            )
-
-        code = self.request.form.get("code")
-        if code is None:
-            raise InvalidRequestError("Missing 'code' in request.")
-
-        # ensure that the authorization code was issued to the authenticated
-        # confidential client, or if the client is public, ensure that the
-        # code was issued to "client_id" in the request
-        authorization_code = self.query_authorization_code(code, client)
-        if not authorization_code:
-            raise InvalidGrantError("Invalid 'code' in request.")
-
-        # validate redirect_uri parameter
-        log.debug("Validate token redirect_uri of %r", client)
-        redirect_uri = self.request.payload.redirect_uri
-        original_redirect_uri = authorization_code.get_redirect_uri()
-        if original_redirect_uri and redirect_uri != original_redirect_uri:
-            raise InvalidGrantError("Invalid 'redirect_uri' in request.")
-
-        # save for create_token_response
-        self.request.client = client
-        self.request.authorization_code = authorization_code
+        pass
 
     @hooked
     def create_token_response(self):
@@ -270,25 +225,7 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
 
         .. _`Section 4.1.4`: https://tools.ietf.org/html/rfc6749#section-4.1.4
         """
-        client = self.request.client
-        authorization_code = self.request.authorization_code
-
-        user = self.authenticate_user(authorization_code)
-        if not user:
-            raise InvalidGrantError("There is no 'user' for this code.")
-        self.request.user = user
-
-        scope = authorization_code.get_scope()
-        token = self.generate_token(
-            user=user,
-            scope=scope,
-            include_refresh_token=client.check_grant_type("refresh_token"),
-        )
-        log.debug("Issue token %r to %r", token, client)
-
-        self.save_token(token)
-        self.delete_authorization_code(authorization_code)
-        return 200, token, self.TOKEN_RESPONSE_HEADER
+        pass
 
     def generate_authorization_code(self):
         """ "The method to generate "code" value for authorization code data.
@@ -297,7 +234,7 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
             class MyAuthorizationCodeGrant(AuthorizationCodeGrant):
                 AUTHORIZATION_CODE_LENGTH = 32  # default is 48
         """
-        return generate_token(self.AUTHORIZATION_CODE_LENGTH)
+        pass
 
     def save_authorization_code(self, code, request):
         """Save authorization_code for later use. Developers MUST implement
@@ -359,42 +296,4 @@ class AuthorizationCodeGrant(BaseGrant, AuthorizationEndpointMixin, TokenEndpoin
 
 
 def validate_code_authorization_request(grant):
-    request = grant.request
-    client_id = request.payload.client_id
-    log.debug("Validate authorization request of %r", client_id)
-
-    if client_id is None:
-        raise InvalidClientError(
-            description="Missing 'client_id' parameter.",
-        )
-
-    client = grant.server.query_client(client_id)
-    if not client:
-        raise InvalidClientError(
-            description="The client does not exist on this server.",
-        )
-
-    redirect_uri = grant.validate_authorization_redirect_uri(request, client)
-    response_type = request.payload.response_type
-    if not client.check_response_type(response_type):
-        raise UnauthorizedClientError(
-            f"The client is not authorized to use 'response_type={response_type}'",
-            redirect_uri=redirect_uri,
-        )
-
-    grant.request.client = client
-
-    @hooked
-    def validate_authorization_request_payload(grant, redirect_uri):
-        grant.validate_requested_scope()
-        scope = client.get_allowed_scope(request.payload.scope)
-        if scope is None:
-            raise InvalidScopeError()
-        request.scope = scope
-
-    try:
-        validate_authorization_request_payload(grant, redirect_uri)
-    except OAuth2Error as error:
-        error.redirect_uri = redirect_uri
-        raise error
-    return redirect_uri
+    pass

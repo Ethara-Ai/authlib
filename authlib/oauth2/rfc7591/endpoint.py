@@ -37,101 +37,24 @@ class ClientRegistrationEndpoint:
         return self.create_registration_response(request)
 
     def create_registration_response(self, request):
-        token = self.authenticate_token(request)
-        if not token:
-            raise AccessDeniedError()
-
-        request.credential = token
-
-        client_metadata = self.extract_client_metadata(request)
-        client_info = self.generate_client_info(request)
-        body = {}
-        body.update(client_metadata)
-        body.update(client_info)
-        client = self.save_client(client_info, client_metadata, request)
-        registration_info = self.generate_client_registration_info(client, request)
-        if registration_info:
-            body.update(registration_info)
-        return 201, body, default_json_headers
+        pass
 
     def extract_client_metadata(self, request):
-        if not request.payload.data:
-            raise InvalidRequestError()
-
-        json_data = request.payload.data.copy()
-        software_statement = json_data.pop("software_statement", None)
-        if software_statement and self.software_statement_alg_values_supported:
-            data = self.extract_software_statement(software_statement, request)
-            json_data.update(data)
-
-        client_metadata = {}
-        server_metadata = self.get_server_metadata()
-        for claims_class in self.claims_classes:
-            options = (
-                claims_class.get_claims_options(server_metadata)
-                if hasattr(claims_class, "get_claims_options") and server_metadata
-                else {}
-            )
-            claims = claims_class(json_data, {}, options, server_metadata)
-            try:
-                claims.validate()
-            except JoseError as error:
-                raise InvalidClientMetadataError(error.description) from error
-
-            client_metadata.update(**claims.get_registered_claims())
-        return client_metadata
+        pass
 
     def extract_software_statement(self, software_statement, request):
-        key = self.resolve_public_key(request)
-        if not key:
-            raise UnapprovedSoftwareStatementError()
-
-        try:
-            key = import_any_key(key)
-            algorithms = self.software_statement_alg_values_supported
-            token = jwt.decode(software_statement, key, algorithms=algorithms)
-            # there is no need to validate claims
-            return token.claims
-        except JoseError as exc:
-            raise InvalidSoftwareStatementError() from exc
+        pass
 
     def generate_client_info(self, request):
         # https://tools.ietf.org/html/rfc7591#section-3.2.1
-        try:
-            client_id = self.generate_client_id(request)
-        except TypeError:  # pragma: no cover
-            client_id = self.generate_client_id()  # type: ignore
-            deprecate(
-                "generate_client_id takes a 'request' parameter. "
-                "It will become mandatory in coming releases",
-                version="1.8",
-            )
-
-        try:
-            client_secret = self.generate_client_secret(request)
-        except TypeError:  # pragma: no cover
-            client_secret = self.generate_client_secret()
-            deprecate(
-                "generate_client_secret takes a 'request' parameter. "
-                "It will become mandatory in coming releases",
-                version="1.8",
-            )
-
-        client_id_issued_at = int(time.time())
-        client_secret_expires_at = 0
-        return dict(
-            client_id=client_id,
-            client_secret=client_secret,
-            client_id_issued_at=client_id_issued_at,
-            client_secret_expires_at=client_secret_expires_at,
-        )
+        pass
 
     def generate_client_registration_info(self, client, request):
         """Generate ```registration_client_uri`` and ``registration_access_token``
         for RFC7592. This method returns ``None`` by default. Developers MAY rewrite
         this method to return registration information.
         """
-        return None
+        pass
 
     def create_endpoint_request(self, request):
         return self.server.create_json_request(request)
@@ -140,13 +63,13 @@ class ClientRegistrationEndpoint:
         """Generate ``client_id`` value. Developers MAY rewrite this method
         to use their own way to generate ``client_id``.
         """
-        return generate_token(42)
+        pass
 
     def generate_client_secret(self, request):
         """Generate ``client_secret`` value. Developers MAY rewrite this method
         to use their own way to generate ``client_secret``.
         """
-        return binascii.hexlify(os.urandom(24)).decode("ascii")
+        pass
 
     def get_server_metadata(self):
         """Return server metadata which includes supported grant types,

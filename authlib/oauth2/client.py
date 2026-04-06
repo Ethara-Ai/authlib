@@ -135,11 +135,11 @@ class OAuth2Client:
 
     @property
     def token(self):
-        return self.token_auth.token
+        pass
 
     @token.setter
     def token(self, token):
-        self.token_auth.set_token(token)
+        pass
 
     def create_authorization_url(self, url, state=None, code_verifier=None, **kwargs):
         """Generate an authorization URL and state.
@@ -151,36 +151,7 @@ class OAuth2Client:
         :param kwargs: Extra parameters to include.
         :return: authorization_url, state
         """
-        if state is None:
-            state = generate_token()
-
-        response_type = self.metadata.get("response_type", "code")
-        response_type = kwargs.pop("response_type", response_type)
-        if "redirect_uri" not in kwargs:
-            kwargs["redirect_uri"] = self.redirect_uri
-        if "scope" not in kwargs:
-            kwargs["scope"] = self.scope
-
-        if (
-            code_verifier
-            and response_type == "code"
-            and self.code_challenge_method == "S256"
-        ):
-            kwargs["code_challenge"] = create_s256_code_challenge(code_verifier)
-            kwargs["code_challenge_method"] = self.code_challenge_method
-
-        for k in self.EXTRA_AUTHORIZE_PARAMS:
-            if k not in kwargs and k in self.metadata:
-                kwargs[k] = self.metadata[k]
-
-        uri = prepare_grant_uri(
-            url,
-            client_id=self.client_id,
-            response_type=response_type,
-            state=state,
-            **kwargs,
-        )
-        return uri, state
+        pass
 
     def fetch_token(
         self,
@@ -401,15 +372,7 @@ class OAuth2Client:
         * revoke_token_request: invoked before revoking a token.
         * introspect_token_request: invoked before introspecting a token.
         """
-        if hook_type == "protected_request":
-            self.token_auth.hooks.add(hook)
-            return
-
-        if hook_type not in self.compliance_hook:
-            raise ValueError(
-                "Hook type %s is not in %s.", hook_type, self.compliance_hook
-            )
-        self.compliance_hook[hook_type].add(hook)
+        pass
 
     def parse_response_token(self, resp):
         if resp.status_code >= 500:

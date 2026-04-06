@@ -29,7 +29,7 @@ class OctKey(Key):
 
     @property
     def public_only(self):
-        return False
+        pass
 
     def get_op_key(self, operation):
         """Get the raw key for the given key_op. This method will also

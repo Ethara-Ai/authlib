@@ -265,163 +265,7 @@ class JsonWebEncryption:
                 "aad": b"Authenticate me too.",
             }
         """
-        if not isinstance(keys, list):  # single key
-            keys = [keys]
-
-        if not keys:
-            raise ValueError("No keys have been provided")
-
-        header_obj = deepcopy(header_obj)
-
-        shared_header = JWESharedHeader.from_dict(header_obj)
-
-        recipients = header_obj.get("recipients")
-        if recipients is None:
-            recipients = [{} for _ in keys]
-        for i in range(len(recipients)):
-            if recipients[i] is None:
-                recipients[i] = {}
-            if "header" not in recipients[i]:
-                recipients[i]["header"] = {}
-
-        jwe_aad = header_obj.get("aad")
-
-        if len(keys) != len(recipients):
-            raise ValueError(
-                f"Count of recipient keys {len(keys)} does not equal to count of recipients {len(recipients)}"
-            )
-
-        # step 1: Prepare algorithms & key
-        alg = self.get_header_alg(shared_header)
-        enc = self.get_header_enc(shared_header)
-        zip_alg = self.get_header_zip(shared_header)
-
-        self._validate_sender_key(sender_key, alg)
-        self._validate_private_headers(shared_header, alg)
-        for recipient in recipients:
-            self._validate_private_headers(recipient["header"], alg)
-
-        for i in range(len(keys)):
-            keys[i] = prepare_key(alg, recipients[i]["header"], keys[i])
-        if sender_key is not None:
-            sender_key = alg.prepare_key(sender_key)
-
-        # self._post_validate_header(protected, algorithm)
-
-        # step 2: Generate a random Content Encryption Key (CEK)
-        # use enc_alg.generate_cek() in scope of upcoming .wrap
-        # or .generate_keys_and_prepare_headers call
-
-        # step 3: Encrypt the CEK with the recipient's public key
-        preset = alg.generate_preset(enc, keys[0])
-        if "cek" in preset:
-            cek = preset["cek"]
-        else:
-            cek = None
-        if len(keys) > 1 and cek is None:
-            raise InvalidAlgorithmForMultipleRecipientsMode(alg.name)
-        if "header" in preset:
-            shared_header.update_protected(preset["header"])
-
-        if (
-            isinstance(alg, JWEAlgorithmWithTagAwareKeyAgreement)
-            and alg.key_size is not None
-        ):
-            # For a JWE algorithm with tag-aware key agreement in case key agreement
-            # with key wrapping mode is used:
-            # Defer key agreement with key wrapping until authentication tag is computed
-            epks = []
-            for i in range(len(keys)):
-                prep = alg.generate_keys_and_prepare_headers(
-                    enc, keys[i], sender_key, preset
-                )
-                if cek is None:
-                    cek = prep["cek"]
-                epks.append(prep["epk"])
-                recipients[i]["header"].update(prep["header"])
-        else:
-            # In any other case:
-            # Keep the normal steps order defined by RFC 7516
-            for i in range(len(keys)):
-                if isinstance(alg, JWEAlgorithmWithTagAwareKeyAgreement):
-                    wrapped = alg.wrap(enc, shared_header, keys[i], sender_key, preset)
-                else:
-                    wrapped = alg.wrap(enc, shared_header, keys[i], preset)
-                if cek is None:
-                    cek = wrapped["cek"]
-                recipients[i]["encrypted_key"] = wrapped["ek"]
-                if "header" in wrapped:
-                    recipients[i]["header"].update(wrapped["header"])
-
-        # step 4: Generate a random JWE Initialization Vector
-        iv = enc.generate_iv()
-
-        # step 5: Compute the Encoded Protected Header value
-        # BASE64URL(UTF8(JWE Protected Header)). If the JWE Protected Header
-        # is not present, let this value be the empty string.
-        # Let the Additional Authenticated Data encryption parameter be
-        # ASCII(Encoded Protected Header). However, if a JWE AAD value is
-        # present, instead let the Additional Authenticated Data encryption
-        # parameter be ASCII(Encoded Protected Header || '.' || BASE64URL(JWE AAD)).
-        aad = (
-            json_b64encode(shared_header.protected) if shared_header.protected else b""
-        )
-        if jwe_aad is not None:
-            aad += b"." + urlsafe_b64encode(jwe_aad)
-        aad = to_bytes(aad, "ascii")
-
-        # step 6: compress message if required
-        if zip_alg:
-            msg = zip_alg.compress(to_bytes(payload))
-        else:
-            msg = to_bytes(payload)
-
-        # step 7: perform encryption
-        ciphertext, tag = enc.encrypt(msg, aad, iv, cek)
-
-        if (
-            isinstance(alg, JWEAlgorithmWithTagAwareKeyAgreement)
-            and alg.key_size is not None
-        ):
-            # For a JWE algorithm with tag-aware key agreement in case key agreement
-            # with key wrapping mode is used:
-            # Perform key agreement with key wrapping deferred at step 3
-            for i in range(len(keys)):
-                wrapped = alg.agree_upon_key_and_wrap_cek(
-                    enc, shared_header, keys[i], sender_key, epks[i], cek, tag
-                )
-                recipients[i]["encrypted_key"] = wrapped["ek"]
-
-        # step 8: build resulting message
-        obj = OrderedDict()
-
-        if shared_header.protected:
-            obj["protected"] = to_unicode(json_b64encode(shared_header.protected))
-
-        if shared_header.unprotected:
-            obj["unprotected"] = shared_header.unprotected
-
-        for recipient in recipients:
-            if not recipient["header"]:
-                del recipient["header"]
-            recipient["encrypted_key"] = to_unicode(
-                urlsafe_b64encode(recipient["encrypted_key"])
-            )
-            for member in set(recipient.keys()):
-                if member not in {"header", "encrypted_key"}:
-                    del recipient[member]
-        obj["recipients"] = recipients
-
-        if jwe_aad is not None:
-            obj["aad"] = to_unicode(urlsafe_b64encode(jwe_aad))
-
-        obj["iv"] = to_unicode(urlsafe_b64encode(iv))
-
-        obj["ciphertext"] = to_unicode(urlsafe_b64encode(ciphertext))
-
-        obj["tag"] = to_unicode(urlsafe_b64encode(tag))
-
-        return obj
+        pass
 
     def serialize(self, header, payload, key, sender_key=None):
         """Generate a JWE Serialization.
@@ -439,10 +283,7 @@ class JsonWebEncryption:
         :return: JWE compact serialization as bytes or
             JWE JSON serialization as dict
         """
-        if "protected" in header or "unprotected" in header or "recipients" in header:
-            return self.serialize_json(header, payload, key, sender_key)
-
-        return self.serialize_compact(header, payload, key, sender_key)
+        pass
 
     def deserialize_compact(self, s, key, decode=None, sender_key=None):
         """Extract JWE Compact Serialization.
@@ -523,141 +364,7 @@ class JsonWebEncryption:
             a dict containing `protected`, `unprotected`, `recipients` and/or
             `aad` keys
         """
-        obj = ensure_dict(obj, "JWE")
-        obj = deepcopy(obj)
-
-        if "protected" in obj:
-            protected = extract_header(to_bytes(obj["protected"]), DecodeError)
-        else:
-            protected = None
-
-        unprotected = obj.get("unprotected")
-
-        recipients = obj["recipients"]
-        for recipient in recipients:
-            if "header" not in recipient:
-                recipient["header"] = {}
-            recipient["encrypted_key"] = extract_segment(
-                to_bytes(recipient["encrypted_key"]), DecodeError, "encrypted key"
-            )
-
-        if "aad" in obj:
-            jwe_aad = extract_segment(to_bytes(obj["aad"]), DecodeError, "JWE AAD")
-        else:
-            jwe_aad = None
-
-        iv = extract_segment(to_bytes(obj["iv"]), DecodeError, "initialization vector")
-
-        ciphertext = extract_segment(
-            to_bytes(obj["ciphertext"]), DecodeError, "ciphertext"
-        )
-
-        tag = extract_segment(to_bytes(obj["tag"]), DecodeError, "authentication tag")
-
-        shared_header = JWESharedHeader(protected, unprotected)
-
-        alg = self.get_header_alg(shared_header)
-        enc = self.get_header_enc(shared_header)
-        zip_alg = self.get_header_zip(shared_header)
-
-        self._validate_sender_key(sender_key, alg)
-        self._validate_private_headers(shared_header, alg)
-        for recipient in recipients:
-            self._validate_private_headers(recipient["header"], alg)
-
-        kid = None
-        if isinstance(key, tuple) and len(key) == 2:
-            # Extract separately provided kid and essentially key
-            kid = key[0]
-            key = key[1]
-
-        key = alg.prepare_key(key)
-
-        if kid is None:
-            # If kid has not been provided separately, try to get it from key itself
-            kid = key.kid
-
-        if sender_key is not None:
-            sender_key = alg.prepare_key(sender_key)
-
-        def _unwrap_with_sender_key_and_tag(ek, header):
-            return alg.unwrap(enc, ek, header, key, sender_key, tag)
-
-        def _unwrap_with_sender_key_and_without_tag(ek, header):
-            return alg.unwrap(enc, ek, header, key, sender_key)
-
-        def _unwrap_without_sender_key_and_tag(ek, header):
-            return alg.unwrap(enc, ek, header, key)
-
-        def _unwrap_for_matching_recipient(unwrap_func):
-            if kid is not None:
-                for recipient in recipients:
-                    if recipient["header"].get("kid") == kid:
-                        header = JWEHeader(protected, unprotected, recipient["header"])
-                        return unwrap_func(recipient["encrypted_key"], header)
-
-            # Since no explicit match has been found, iterate over all the recipients
-            error = None
-            for recipient in recipients:
-                header = JWEHeader(protected, unprotected, recipient["header"])
-                try:
-                    return unwrap_func(recipient["encrypted_key"], header)
-                except Exception as e:
-                    error = e
-            else:
-                if error is None:
-                    raise KeyMismatchError()
-                else:
-                    raise error
-
-        if isinstance(alg, JWEAlgorithmWithTagAwareKeyAgreement):
-            # For a JWE algorithm with tag-aware key agreement:
-            if alg.key_size is not None:
-                # In case key agreement with key wrapping mode is used:
-                # Provide authentication tag to .unwrap method
-                cek = _unwrap_for_matching_recipient(_unwrap_with_sender_key_and_tag)
-            else:
-                # Otherwise, don't provide authentication tag to .unwrap method
-                cek = _unwrap_for_matching_recipient(
-                    _unwrap_with_sender_key_and_without_tag
-                )
-        else:
-            # For any other JWE algorithm:
-            # Don't provide authentication tag to .unwrap method
-            cek = _unwrap_for_matching_recipient(_unwrap_without_sender_key_and_tag)
-
-        aad = to_bytes(obj.get("protected", ""))
-        if "aad" in obj:
-            aad += b"." + to_bytes(obj["aad"])
-        aad = to_bytes(aad, "ascii")
-
-        msg = enc.decrypt(ciphertext, aad, iv, tag, cek)
-
-        if zip_alg:
-            payload = zip_alg.decompress(to_bytes(msg))
-        else:
-            payload = msg
-
-        if decode:
-            payload = decode(payload)
-
-        for recipient in recipients:
-            if not recipient["header"]:
-                del recipient["header"]
-            for member in set(recipient.keys()):
-                if member != "header":
-                    del recipient[member]
-
-        header = {}
-        if protected:
-            header["protected"] = protected
-        if unprotected:
-            header["unprotected"] = unprotected
-        header["recipients"] = recipients
-        if jwe_aad is not None:
-            header["aad"] = jwe_aad
-
-        return {"header": header, "payload": payload}
+        pass
 
     def deserialize(self, obj, key, decode=None, sender_key=None):
         """Extract a JWE Serialization.
@@ -673,14 +380,7 @@ class JsonWebEncryption:
             JWEAlgorithmWithTagAwareKeyAgreement is used
         :return: dict with `header` and `payload` keys
         """
-        if isinstance(obj, dict):
-            return self.deserialize_json(obj, key, decode, sender_key)
-
-        obj = to_bytes(obj)
-        if obj.startswith(b"{") and obj.endswith(b"}"):
-            return self.deserialize_json(obj, key, decode, sender_key)
-
-        return self.deserialize_compact(obj, key, decode, sender_key)
+        pass
 
     @staticmethod
     def parse_json(obj):
@@ -690,7 +390,7 @@ class JsonWebEncryption:
         :return: Parsed JWE JSON Serialization as dict if `obj` is an str,
             or `obj` as is if `obj` is already a dict
         """
-        return ensure_dict(obj, "JWE")
+        pass
 
     def get_header_alg(self, header):
         if "alg" not in header:

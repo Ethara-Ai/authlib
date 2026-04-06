@@ -49,14 +49,7 @@ class AuthorizationServer(_AuthorizationServer):
         """Default method for ``AuthorizationServer.save_token``. Developers MAY
         rewrite this function to meet their own needs.
         """
-        client = request.client
-        if request.user:
-            user_id = request.user.pk
-        else:
-            user_id = client.user_id
-        item = self.token_model(client_id=client.client_id, user_id=user_id, **token)
-        item.save()
-        return item
+        pass
 
     def create_oauth2_request(self, request):
         return DjangoOAuth2Request(request)
@@ -117,6 +110,6 @@ def create_token_expires_in_generator(expires_in_conf=None):
         data.update(expires_in_conf)
 
     def expires_in(client, grant_type):
-        return data.get(grant_type, BearerTokenGenerator.DEFAULT_EXPIRES_IN)
+        pass
 
     return expires_in

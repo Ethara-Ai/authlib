@@ -26,100 +26,84 @@ class OAuth2ClientMixin(ClientMixin):
 
         .. _`Section 3.2.1`: https://tools.ietf.org/html/rfc7591#section-3.2.1
         """
-        return dict(
-            client_id=self.client_id,
-            client_secret=self.client_secret,
-            client_id_issued_at=self.client_id_issued_at,
-            client_secret_expires_at=self.client_secret_expires_at,
-        )
+        pass
 
     @property
     def client_metadata(self):
-        if "client_metadata" in self.__dict__:
-            return self.__dict__["client_metadata"]
-        if self._client_metadata:
-            data = json_loads(self._client_metadata)
-            self.__dict__["client_metadata"] = data
-            return data
-        return {}
+        pass
 
     def set_client_metadata(self, value):
-        self._client_metadata = json_dumps(value)
-        if "client_metadata" in self.__dict__:
-            del self.__dict__["client_metadata"]
+        pass
 
     @property
     def redirect_uris(self):
-        return self.client_metadata.get("redirect_uris", [])
+        pass
 
     @property
     def token_endpoint_auth_method(self):
-        return self.client_metadata.get(
-            "token_endpoint_auth_method", "client_secret_basic"
-        )
+        pass
 
     @property
     def grant_types(self):
-        return self.client_metadata.get("grant_types", [])
+        pass
 
     @property
     def response_types(self):
-        return self.client_metadata.get("response_types", [])
+        pass
 
     @property
     def client_name(self):
-        return self.client_metadata.get("client_name")
+        pass
 
     @property
     def client_uri(self):
-        return self.client_metadata.get("client_uri")
+        pass
 
     @property
     def logo_uri(self):
-        return self.client_metadata.get("logo_uri")
+        pass
 
     @property
     def scope(self):
-        return self.client_metadata.get("scope", "")
+        pass
 
     @property
     def contacts(self):
-        return self.client_metadata.get("contacts", [])
+        pass
 
     @property
     def tos_uri(self):
-        return self.client_metadata.get("tos_uri")
+        pass
 
     @property
     def policy_uri(self):
-        return self.client_metadata.get("policy_uri")
+        pass
 
     @property
     def jwks_uri(self):
-        return self.client_metadata.get("jwks_uri")
+        pass
 
     @property
     def jwks(self):
-        return self.client_metadata.get("jwks", [])
+        pass
 
     @property
     def software_id(self):
-        return self.client_metadata.get("software_id")
+        pass
 
     @property
     def software_version(self):
-        return self.client_metadata.get("software_version")
+        pass
 
     @property
     def id_token_signed_response_alg(self):
-        return self.client_metadata.get("id_token_signed_response_alg")
+        pass
 
     def get_client_id(self):
         return self.client_id
 
     def get_default_redirect_uri(self):
-        if self.redirect_uris:
-            return self.redirect_uris[0]
+        pass
 
     def get_allowed_scope(self, scope):
         if not scope:
@@ -129,10 +113,10 @@ class OAuth2ClientMixin(ClientMixin):
         return list_to_scope([s for s in scopes if s in allowed])
 
     def check_redirect_uri(self, redirect_uri):
-        return redirect_uri in self.redirect_uris
+        pass
 
     def check_client_secret(self, client_secret):
-        return secrets.compare_digest(self.client_secret, client_secret)
+        pass
 
     def check_endpoint_auth_method(self, method, endpoint):
         if endpoint == "token":
@@ -141,7 +125,7 @@ class OAuth2ClientMixin(ClientMixin):
         return True
 
     def check_response_type(self, response_type):
-        return response_type in self.response_types
+        pass
 
     def check_grant_type(self, grant_type):
-        return grant_type in self.grant_types
+        pass

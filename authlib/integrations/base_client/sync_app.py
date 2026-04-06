@@ -53,7 +53,7 @@ class BaseApp:
 
             client.put("profile", json={"name": "Hsiaoming Yang"})
         """
-        return self.request("PUT", url, **kwargs)
+        pass
 
     def delete(self, url, **kwargs):
         """Invoke DELETE http request.
@@ -62,7 +62,7 @@ class BaseApp:
 
             client.delete("posts/123")
         """
-        return self.request("DELETE", url, **kwargs)
+        pass
 
 
 class _RequestMixin:
@@ -147,20 +147,7 @@ class OAuth1Mixin(_RequestMixin, OAuth1Base):
         :param kwargs: Extra parameters to include.
         :return: dict
         """
-        if not self.authorize_url:
-            raise RuntimeError('Missing "authorize_url" value')
-
-        if self.authorize_params:
-            kwargs.update(self.authorize_params)
-
-        with self._get_oauth_client() as client:
-            client.redirect_uri = redirect_uri
-            params = self.request_token_params or {}
-            request_token = client.fetch_request_token(self.request_token_url, **params)
-            log.debug(f"Fetch request token: {request_token!r}")
-            url = client.create_authorization_url(self.authorize_url, **kwargs)
-            state = request_token["oauth_token"]
-        return {"url": url, "request_token": request_token, "state": state}
+        pass
 
     def fetch_access_token(self, request_token=None, **kwargs):
         """Fetch access token in one step.
@@ -169,17 +156,7 @@ class OAuth1Mixin(_RequestMixin, OAuth1Base):
         :param kwargs: Extra parameters to fetch access token.
         :return: A token dict.
         """
-        with self._get_oauth_client() as client:
-            if request_token is None:
-                raise MissingRequestTokenError()
-            # merge request token with verifier
-            token = {}
-            token.update(request_token)
-            token.update(kwargs)
-            client.token = token
-            params = self.access_token_params or {}
-            token = client.fetch_access_token(self.access_token_url, **params)
-        return token
+        pass
 
 
 class OAuth2Base:
@@ -261,62 +238,16 @@ class OAuth2Base:
 
     @staticmethod
     def _format_state_params(state_data, params):
-        if state_data is None:
-            raise MismatchingStateError()
-
-        code_verifier = state_data.get("code_verifier")
-        if code_verifier:
-            params["code_verifier"] = code_verifier
-
-        redirect_uri = state_data.get("redirect_uri")
-        if redirect_uri:
-            params["redirect_uri"] = redirect_uri
-        return params
+        pass
 
     @staticmethod
     def _create_oauth2_authorization_url(client, authorization_endpoint, **kwargs):
-        rv = {}
-        if client.code_challenge_method:
-            code_verifier = kwargs.get("code_verifier")
-            if not code_verifier:
-                code_verifier = generate_token(48)
-                kwargs["code_verifier"] = code_verifier
-            rv["code_verifier"] = code_verifier
-            log.debug(f"Using code_verifier: {code_verifier!r}")
-
-        scope = kwargs.get("scope", client.scope)
-        scope = (
-            (scope if isinstance(scope, (list, tuple)) else scope.split())
-            if scope
-            else None
-        )
-        if scope and "openid" in scope:
-            # this is an OpenID Connect service
-            nonce = kwargs.get("nonce")
-            if not nonce:
-                nonce = generate_token(20)
-                kwargs["nonce"] = nonce
-            rv["nonce"] = nonce
-
-        url, state = client.create_authorization_url(authorization_endpoint, **kwargs)
-        rv["url"] = url
-        rv["state"] = state
-        return rv
+        pass
 
 
 class OAuth2Mixin(_RequestMixin, OAuth2Base):
     def _on_update_token(self, token, refresh_token=None, access_token=None):
-        if callable(self._update_token):
-            self._update_token(
-                token,
-                refresh_token=refresh_token,
-                access_token=access_token,
-            )
-        self.framework.update_token(
-            token,
-            refresh_token=refresh_token,
-            access_token=access_token,
-        )
+        pass
 
     def request(self, method, url, token=None, **kwargs):
         metadata = self.load_server_metadata()
@@ -343,23 +274,7 @@ class OAuth2Mixin(_RequestMixin, OAuth2Base):
         :param kwargs: Extra parameters to include.
         :return: dict
         """
-        metadata = self.load_server_metadata()
-        authorization_endpoint = self.authorize_url or metadata.get(
-            "authorization_endpoint"
-        )
-
-        if not authorization_endpoint:
-            raise RuntimeError('Missing "authorize_url" value')
-
-        if self.authorize_params:
-            kwargs.update(self.authorize_params)
-
-        with self._get_oauth_client(**metadata) as client:
-            if redirect_uri is not None:
-                client.redirect_uri = redirect_uri
-            return self._create_oauth2_authorization_url(
-                client, authorization_endpoint, **kwargs
-            )
+        pass
 
     def fetch_access_token(self, redirect_uri=None, **kwargs):
         """Fetch access token in the final step.
@@ -369,14 +284,4 @@ class OAuth2Mixin(_RequestMixin, OAuth2Base):
         :param kwargs: Extra parameters to fetch access token.
         :return: A token dict.
         """
-        metadata = self.load_server_metadata()
-        token_endpoint = self.access_token_url or metadata.get("token_endpoint")
-        with self._get_oauth_client(**metadata) as client:
-            if redirect_uri is not None:
-                client.redirect_uri = redirect_uri
-            params = {}
-            if self.access_token_params:
-                params.update(self.access_token_params)
-            params.update(kwargs)
-            token = client.fetch_token(token_endpoint, **params)
-            return token
+        pass

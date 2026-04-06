@@ -26,11 +26,7 @@ class AsymmetricKey(Key):
 
     @property
     def public_only(self):
-        if self.private_key:
-            return False
-        if "d" in self.tokens:
-            return False
-        return True
+        pass
 
     def get_op_key(self, operation):
         """Get the raw key for the given key_op. This method will also
@@ -108,9 +104,7 @@ class AsymmetricKey(Key):
 
     def as_key(self, is_private=False):
         """Represent this key as raw key."""
-        if is_private:
-            return self.get_private_key()
-        return self.get_public_key()
+        pass
 
     def as_bytes(self, encoding=None, is_private=False, password=None):
         """Export key into PEM/DER format bytes.
@@ -120,36 +114,13 @@ class AsymmetricKey(Key):
         :param password: encrypt private key with password
         :return: bytes
         """
-        if encoding is None or encoding == "PEM":
-            encoding = Encoding.PEM
-        elif encoding == "DER":
-            encoding = Encoding.DER
-        else:
-            raise ValueError(f"Invalid encoding: {encoding!r}")
-
-        raw_key = self.as_key(is_private)
-        if is_private:
-            if not raw_key:
-                raise ValueError("This is a public key")
-            if password is None:
-                encryption_algorithm = NoEncryption()
-            else:
-                encryption_algorithm = BestAvailableEncryption(to_bytes(password))
-            return raw_key.private_bytes(
-                encoding=encoding,
-                format=PrivateFormat.PKCS8,
-                encryption_algorithm=encryption_algorithm,
-            )
-        return raw_key.public_bytes(
-            encoding=encoding,
-            format=PublicFormat.SubjectPublicKeyInfo,
-        )
+        pass
 
     def as_pem(self, is_private=False, password=None):
-        return self.as_bytes(is_private=is_private, password=password)
+        pass
 
     def as_der(self, is_private=False, password=None):
-        return self.as_bytes(encoding="DER", is_private=is_private, password=password)
+        pass
 
     @classmethod
     def import_dict_key(cls, raw, options=None):

@@ -26,17 +26,7 @@ log = logging.getLogger(__name__)
 
 class OpenIDToken(LegacyMixin):
     def get_authorization_code_claims(self, authorization_code: AuthorizationCodeMixin):
-        claims = {
-            "nonce": authorization_code.get_nonce(),
-            "auth_time": authorization_code.get_auth_time(),
-        }
-
-        if acr := authorization_code.get_acr():
-            claims["acr"] = acr
-
-        if amr := authorization_code.get_amr():
-            claims["amr"] = amr
-        return claims
+        pass
 
     def generate_user_info(self, user, scope):
         """Provide user information for the given scope. Developers
@@ -58,43 +48,10 @@ class OpenIDToken(LegacyMixin):
         raise NotImplementedError()
 
     def encode_id_token(self, token, request: OAuth2Request):
-        alg = self.get_client_algorithm(request.client)
-        header = self.get_encode_header(request.client)
-
-        claims = self.get_compatible_claims(request)
-        if request.authorization_code:
-            claims.update(
-                self.get_authorization_code_claims(request.authorization_code)
-            )
-
-        access_token = token.get("access_token")
-        if access_token:
-            at_hash = create_half_hash(access_token, alg)
-            if at_hash is not None:
-                claims["at_hash"] = at_hash.decode("utf-8")
-
-        user_info = self.generate_user_info(request.user, token["scope"])
-        claims.update(user_info)
-
-        if alg == "none":
-            private_key = None
-        else:
-            key = self.resolve_client_private_key(request.client)
-            private_key = import_any_key(key)
-
-        return jwt.encode(header, claims, private_key, [alg])
+        pass
 
     def process_token(self, grant, response):
-        _, token, _ = response
-        scope = token.get("scope")
-        if not scope or not is_openid_scope(scope):
-            # standard authorization code flow
-            return token
-
-        request: OAuth2Request = grant.request
-        id_token = self.encode_id_token(token, request)
-        token["id_token"] = id_token
-        return token
+        pass
 
     def __call__(self, grant):
         grant.register_hook("after_create_token_response", self.process_token)
@@ -143,7 +100,7 @@ class OpenIDCode(OpenIDToken):
         raise NotImplementedError()
 
     def validate_openid_authorization_request(self, grant, redirect_uri):
-        validate_nonce(grant.request, self.exists_nonce, self.require_nonce)
+        pass
 
     def __call__(self, grant):
         grant.register_hook("after_create_token_response", self.process_token)

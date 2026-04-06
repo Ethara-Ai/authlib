@@ -121,35 +121,7 @@ class ImplicitGrant(BaseGrant, AuthorizationEndpointMixin):
 
         .. _`Section 4.2.1`: https://tools.ietf.org/html/rfc6749#section-4.2.1
         """
-        # ignore validate for response_type, since it is validated by
-        # check_authorization_endpoint
-
-        # The implicit grant type is optimized for public clients
-        client = self.authenticate_token_endpoint_client()
-        log.debug("Validate authorization request of %r", client)
-
-        redirect_uri = self.validate_authorization_redirect_uri(self.request, client)
-
-        response_type = self.request.payload.response_type
-        if not client.check_response_type(response_type):
-            raise UnauthorizedClientError(
-                f"The client is not authorized to use 'response_type={response_type}'",
-                redirect_uri=redirect_uri,
-                redirect_fragment=True,
-            )
-
-        try:
-            self.request.client = client
-            self.validate_requested_scope()
-            scope = client.get_allowed_scope(self.request.payload.scope)
-            if scope is None:
-                raise InvalidScopeError()
-            self.request.scope = scope
-        except OAuth2Error as error:
-            error.redirect_uri = redirect_uri
-            error.redirect_fragment = True
-            raise error
-        return redirect_uri
+        pass
 
     @hooked
     def create_authorization_response(self, redirect_uri, grant_user):
@@ -208,23 +180,4 @@ class ImplicitGrant(BaseGrant, AuthorizationEndpointMixin):
             resource owner, otherwise pass None.
         :returns: (status_code, body, headers)
         """
-        state = self.request.payload.state
-        if grant_user:
-            self.request.user = grant_user
-            token = self.generate_token(
-                user=grant_user,
-                scope=self.request.scope,
-                include_refresh_token=False,
-            )
-            log.debug("Grant token %r to %r", token, self.request.client)
-
-            self.save_token(token)
-            params = [(k, token[k]) for k in token]
-            if state:
-                params.append(("state", state))
-
-            uri = add_params_to_uri(redirect_uri, params, fragment=True)
-            headers = [("Location", uri)]
-            return 302, "", headers
-        else:
-            raise AccessDeniedError(redirect_uri=redirect_uri, redirect_fragment=True)
+        pass

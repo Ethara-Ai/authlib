@@ -28,7 +28,7 @@ class OpenIDHybridGrant(OpenIDImplicitGrant):
             class MyAuthorizationCodeGrant(AuthorizationCodeGrant):
                 AUTHORIZATION_CODE_LENGTH = 32  # default is 48
         """
-        return generate_token(self.AUTHORIZATION_CODE_LENGTH)
+        pass
 
     def save_authorization_code(self, code, request):
         """Save authorization_code for later use. Developers MUST implement
@@ -49,43 +49,7 @@ class OpenIDHybridGrant(OpenIDImplicitGrant):
         raise NotImplementedError()
 
     def validate_authorization_request(self):
-        if not is_openid_scope(self.request.payload.scope):
-            raise InvalidScopeError(
-                "Missing 'openid' scope",
-                redirect_uri=self.request.payload.redirect_uri,
-                redirect_fragment=True,
-            )
-        self.register_hook(
-            "after_validate_authorization_request_payload",
-            lambda grant, redirect_uri: validate_nonce(
-                grant.request, grant.exists_nonce, required=True
-            ),
-        )
-        return validate_code_authorization_request(self)
+        pass
 
     def create_granted_params(self, grant_user):
-        self.request.user = grant_user
-        client = self.request.client
-        code = self.generate_authorization_code()
-        self.save_authorization_code(code, self.request)
-        params = [("code", code)]
-        token = self.generate_token(
-            grant_type="implicit",
-            user=grant_user,
-            scope=self.request.payload.scope,
-            include_refresh_token=False,
-        )
-
-        response_types = self.request.payload.response_type.split()
-        if "token" in response_types:
-            log.debug("Grant token %r to %r", token, client)
-            self.server.save_token(token, self.request)
-            if "id_token" in response_types:
-                token = self.process_implicit_token(token, code)
-        else:
-            # response_type is "code id_token"
-            token = {"expires_in": token["expires_in"], "scope": token["scope"]}
-            token = self.process_implicit_token(token, code)
-
-        params.extend([(k, token[k]) for k in token])
-        return params
+        pass

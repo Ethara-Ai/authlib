@@ -96,13 +96,13 @@ class TemporaryCredential(dict, TemporaryCredentialMixin):
         return self.get("user_id")
 
     def get_redirect_uri(self):
-        return self.get("oauth_callback")
+        pass
 
     def check_verifier(self, verifier):
-        return self.get("oauth_verifier") == verifier
+        pass
 
     def get_oauth_token(self):
-        return self.get("oauth_token")
+        pass
 
     def get_oauth_token_secret(self):
-        return self.get("oauth_token_secret")
+        pass

@@ -45,24 +45,10 @@ class AuthorizationServer(_AuthorizationServer):
             self.init_app(app)
 
     def init_app(self, app, query_client=None, token_generator=None):
-        if query_client is not None:
-            self.query_client = query_client
-        if token_generator is not None:
-            self.token_generator = token_generator
-
-        if self.token_generator is None:
-            self.token_generator = self.create_token_generator(app)
-
-        methods = app.config.get("OAUTH1_SUPPORTED_SIGNATURE_METHODS")
-        if methods and isinstance(methods, (list, tuple)):
-            self.SUPPORTED_SIGNATURE_METHODS = methods
-
-        self.app = app
+        pass
 
     def register_hook(self, name, func):
-        if name not in self._hooks:
-            raise ValueError('Invalid "name" of hook')
-        self._hooks[name] = func
+        pass
 
     def create_token_generator(self, app):
         token_generator = app.config.get("OAUTH1_TOKEN_GENERATOR")
@@ -85,10 +71,7 @@ class AuthorizationServer(_AuthorizationServer):
                 return generate_token(length)
 
         def create_token():
-            return {
-                "oauth_token": token_generator(),
-                "oauth_token_secret": secret_generator(),
-            }
+            pass
 
         return create_token
 
@@ -106,63 +89,31 @@ class AuthorizationServer(_AuthorizationServer):
         raise RuntimeError('"exists_nonce" hook is required.')
 
     def create_temporary_credential(self, request):
-        func = self._hooks["create_temporary_credential"]
-        if callable(func):
-            token = self.token_generator()
-            return func(token, request.client_id, request.redirect_uri)
-        raise RuntimeError('"create_temporary_credential" hook is required.')
+        pass
 
     def get_temporary_credential(self, request):
-        func = self._hooks["get_temporary_credential"]
-        if callable(func):
-            return func(request.token)
-
-        raise RuntimeError('"get_temporary_credential" hook is required.')
+        pass
 
     def delete_temporary_credential(self, request):
-        func = self._hooks["delete_temporary_credential"]
-        if callable(func):
-            return func(request.token)
-
-        raise RuntimeError('"delete_temporary_credential" hook is required.')
+        pass
 
     def create_authorization_verifier(self, request):
-        func = self._hooks["create_authorization_verifier"]
-        if callable(func):
-            verifier = generate_token(36)
-            func(request.credential, request.user, verifier)
-            return verifier
-
-        raise RuntimeError('"create_authorization_verifier" hook is required.')
+        pass
 
     def create_token_credential(self, request):
-        func = self._hooks["create_token_credential"]
-        if callable(func):
-            temporary_credential = request.credential
-            token = self.token_generator()
-            return func(token, temporary_credential)
-
-        raise RuntimeError('"create_token_credential" hook is required.')
+        pass
 
     def check_authorization_request(self):
-        req = self.create_oauth1_request(None)
-        self.validate_authorization_request(req)
-        return req
+        pass
 
     def create_authorization_response(self, request=None, grant_user=None):
-        return super().create_authorization_response(request, grant_user)
+        pass
 
     def create_token_response(self, request=None):
-        return super().create_token_response(request)
+        pass
 
     def create_oauth1_request(self, request):
-        if request is None:
-            request = flask_req
-        if request.method in ("POST", "PUT"):
-            body = request.form.to_dict(flat=True)
-        else:
-            body = None
-        return OAuth1Request(request.method, request.url, body, request.headers)
+        pass
 
     def handle_response(self, status_code, payload, headers):
         return Response(url_encode(payload), status=status_code, headers=headers)

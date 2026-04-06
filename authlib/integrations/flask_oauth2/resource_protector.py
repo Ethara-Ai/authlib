@@ -53,10 +53,7 @@ class ResourceProtector(_ResourceProtector):
         :param error: OAuth2Error
         :raise: HTTPException
         """
-        status = error.status_code
-        body = json.dumps(dict(error.get_body()))
-        headers = error.get_headers()
-        raise_http_exception(status, body, headers)
+        pass
 
     def acquire_token(self, scopes=None, **kwargs):
         """A method to acquire current valid token with the given scope.
@@ -64,16 +61,7 @@ class ResourceProtector(_ResourceProtector):
         :param scopes: a list of scope values
         :return: token object
         """
-        request = FlaskJsonRequest(_req)
-        # backward compatibility
-        kwargs["scopes"] = scopes
-        for claim in kwargs:
-            if isinstance(kwargs[claim], str):
-                kwargs[claim] = [kwargs[claim]]
-        token = self.validate_request(request=request, **kwargs)
-        token_authenticated.send(self, token=token)
-        g.authlib_server_oauth2_token = token
-        return token
+        pass
 
     @contextmanager
     def acquire(self, scopes=None):
@@ -86,10 +74,7 @@ class ResourceProtector(_ResourceProtector):
                     user = User.get(token.user_id)
                     return jsonify(user.to_dict())
         """
-        try:
-            yield self.acquire_token(scopes)
-        except OAuth2Error as error:
-            self.raise_error_response(error)
+        pass
 
     def __call__(self, scopes=None, optional=False, **kwargs):
         claims = kwargs
@@ -97,18 +82,7 @@ class ResourceProtector(_ResourceProtector):
 
         def decorator(f):
             @functools.wraps(f)
-            def decorated(*args, **kwargs):
-                try:
-                    self.acquire_token(**claims)
-                except MissingAuthorizationError as error:
-                    if optional:
-                        return f(*args, **kwargs)
-                    self.raise_error_response(error)
-                except OAuth2Error as error:
-                    self.raise_error_response(error)
-                return f(*args, **kwargs)
-
-            return decorated
+            pass
 
         if callable(scopes):
             return decorator(scopes)
@@ -116,7 +90,7 @@ class ResourceProtector(_ResourceProtector):
 
 
 def _get_current_token():
-    return g.get("authlib_server_oauth2_token")
+    pass
 
 
 current_token = LocalProxy(_get_current_token)

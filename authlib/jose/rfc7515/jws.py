@@ -136,36 +136,7 @@ class JsonWebSignature:
         Pass a dict to generate flattened JSON Serialization, pass a list of
         header dict to generate standard JSON Serialization.
         """
-        payload_segment = json_b64encode(payload)
-
-        def _sign(jws_header):
-            self._validate_private_headers(jws_header)
-            # RFC 7515 §4.1.11: 'crit' MUST be integrity-protected.
-            # Reject if present in unprotected header, and validate only
-            # against the protected header parameters.
-            self._reject_unprotected_crit(jws_header.header)
-            self._validate_crit_headers(jws_header.protected)
-            _alg, _key = self._prepare_algorithm_key(jws_header, payload, key)
-
-            protected_segment = json_b64encode(jws_header.protected)
-            signing_input = b".".join([protected_segment, payload_segment])
-            signature = urlsafe_b64encode(_alg.sign(signing_input, _key))
-
-            rv = {
-                "protected": to_unicode(protected_segment),
-                "signature": to_unicode(signature),
-            }
-            if jws_header.header is not None:
-                rv["header"] = jws_header.header
-            return rv
-
-        if isinstance(header_obj, dict):
-            data = _sign(JWSHeader.from_dict(header_obj))
-            data["payload"] = to_unicode(payload_segment)
-            return data
-
-        signatures = [_sign(JWSHeader.from_dict(h)) for h in header_obj]
-        return {"payload": to_unicode(payload_segment), "signatures": signatures}
+        pass
 
     def deserialize_json(self, obj, key, decode=None):
         """Exact JWS JSON Serialization, and validate with the given key.
@@ -180,42 +151,7 @@ class JsonWebSignature:
 
         .. _`Section 7.2`: https://tools.ietf.org/html/rfc7515#section-7.2
         """
-        obj = ensure_dict(obj, "JWS")
-
-        payload_segment = obj.get("payload")
-        if payload_segment is None:
-            raise DecodeError('Missing "payload" value')
-
-        payload_segment = to_bytes(payload_segment)
-        payload = _extract_payload(payload_segment)
-        if decode:
-            payload = decode(payload)
-
-        if "signatures" not in obj:
-            # flattened JSON JWS
-            jws_header, valid = self._validate_json_jws(
-                payload_segment, payload, obj, key
-            )
-
-            rv = JWSObject(jws_header, payload, "flat")
-            if valid:
-                return rv
-            raise BadSignatureError(rv)
-
-        headers = []
-        is_valid = True
-        for header_obj in obj["signatures"]:
-            jws_header, valid = self._validate_json_jws(
-                payload_segment, payload, header_obj, key
-            )
-            headers.append(jws_header)
-            if not valid:
-                is_valid = False
-
-        rv = JWSObject(headers, payload, "json")
-        if is_valid:
-            return rv
-        raise BadSignatureError(rv)
+        pass
 
     def serialize(self, header, payload, key):
         """Generate a JWS Serialization. It will automatically generate a
@@ -229,11 +165,7 @@ class JsonWebSignature:
         :param key: Private key used to generate signature
         :return: byte/dict
         """
-        if isinstance(header, (list, tuple)):
-            return self.serialize_json(header, payload, key)
-        if "protected" in header:
-            return self.serialize_json(header, payload, key)
-        return self.serialize_compact(header, payload, key)
+        pass
 
     def deserialize(self, s, key, decode=None):
         """Deserialize JWS Serialization, both compact and JSON format.
@@ -248,13 +180,7 @@ class JsonWebSignature:
         If key is not provided, it will still deserialize the serialization
         without verification.
         """
-        if isinstance(s, dict):
-            return self.deserialize_json(s, key, decode)
-
-        s = to_bytes(s)
-        if s.startswith(b"{") and s.endswith(b"}"):
-            return self.deserialize_json(s, key, decode)
-        return self.deserialize_compact(s, key, decode)
+        pass
 
     def _prepare_algorithm_key(self, header, payload, key):
         if "alg" not in header:
@@ -308,34 +234,7 @@ class JsonWebSignature:
                     raise InvalidCritHeaderParameterNameError(k)
 
     def _validate_json_jws(self, payload_segment, payload, header_obj, key):
-        protected_segment = header_obj.get("protected")
-        if not protected_segment:
-            raise DecodeError('Missing "protected" value')
-
-        signature_segment = header_obj.get("signature")
-        if not signature_segment:
-            raise DecodeError('Missing "signature" value')
-
-        protected_segment = to_bytes(protected_segment)
-        protected = _extract_header(protected_segment)
-        header = header_obj.get("header")
-        if header and not isinstance(header, dict):
-            raise DecodeError('Invalid "header" value')
-        # RFC 7515 §4.1.11: 'crit' MUST be integrity-protected. If present in
-        # the unprotected header object, reject the JWS.
-        self._reject_unprotected_crit(header)
-
-        # Enforce must-understand semantics for names listed in protected
-        # 'crit'. This will also ensure each listed name is present in the
-        # protected header.
-        self._validate_crit_headers(protected)
-        jws_header = JWSHeader(protected, header)
-        algorithm, key = self._prepare_algorithm_key(jws_header, payload, key)
-        signing_input = b".".join([protected_segment, payload_segment])
-        signature = _extract_signature(to_bytes(signature_segment))
-        if algorithm.verify(signing_input, signature, key):
-            return jws_header, True
-        return jws_header, False
+        pass
 
 
 def _extract_header(header_segment):

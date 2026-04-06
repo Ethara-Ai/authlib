@@ -22,16 +22,7 @@ class IssuerParameter:
             )
 
     def add_issuer_parameter(self, authorization_server, response):
-        if self.get_issuer() and response.location:
-            # RFC9207 §2
-            # In authorization responses to the client, including error responses,
-            # an authorization server supporting this specification MUST indicate
-            # its identity by including the iss parameter in the response.
-
-            new_location = add_params_to_uri(
-                response.location, {"iss": self.get_issuer()}
-            )
-            response.location = new_location
+        pass
 
     def get_issuer(self) -> str | None:
         """Return the issuer URL.
@@ -40,4 +31,4 @@ class IssuerParameter:
             def get_issuer(self) -> str:
                 return "https://auth.example.org"
         """
-        return None
+        pass

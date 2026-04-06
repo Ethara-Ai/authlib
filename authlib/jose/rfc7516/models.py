@@ -126,14 +126,11 @@ class JWESharedHeader(dict):
         self.unprotected = unprotected if unprotected else {}
 
     def update_protected(self, addition):
-        self.update(addition)
-        self.protected.update(addition)
+        pass
 
     @classmethod
     def from_dict(cls, obj):
-        if isinstance(obj, cls):
-            return obj
-        return cls(obj.get("protected"), obj.get("unprotected"))
+        pass
 
 
 class JWEHeader(dict):

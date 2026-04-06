@@ -74,141 +74,27 @@ class JWTAuthenticationRequest:
             def get_request_object_signing_algorithms(self, client):
                 return ["RS256"]
         """
-        metadata = self.get_server_metadata()
-        algorithms = metadata.get("request_object_signing_alg_values_supported")
-        if not algorithms:
-            require_signed1 = self.get_client_require_signed_request_object(client)
-            require_signed2 = metadata.get("require_signed_request_object", False)
-            if require_signed1 or require_signed2:
-                algorithms = JWSRegistry.recommended
-            else:
-                algorithms = [*JWSRegistry.recommended, "none"]
-        return algorithms
+        pass
 
     def parse_authorization_request(
         self, authorization_server: AuthorizationServer, request: OAuth2Request
     ):
-        client_id = request.payload.client_id
-        if client_id is None:
-            raise InvalidClientError(
-                status_code=404,
-                description="Missing 'client_id' parameter.",
-            )
-
-        client = authorization_server.query_client(client_id)
-        if not client:
-            raise InvalidClientError(
-                status_code=404,
-                description="The client does not exist on this server.",
-            )
-
-        if not self._shoud_proceed_with_request_object(request, client):
-            return
-
-        raw_request_object = self._get_raw_request_object(request)
-        request_object = self._decode_request_object(
-            request, client, raw_request_object
-        )
-        payload = BasicOAuth2Payload(request_object.claims)
-        request.payload = payload
+        pass
 
     def _shoud_proceed_with_request_object(
         self,
         request: OAuth2Request,
         client: ClientMixin,
     ) -> bool:
-        if "request" in request.payload.data and "request_uri" in request.payload.data:
-            raise InvalidRequestError(
-                "The 'request' and 'request_uri' parameters are mutually exclusive.",
-                state=request.payload.state,
-            )
-
-        if "request" in request.payload.data:
-            if not self.support_request:
-                raise RequestNotSupportedError(state=request.payload.state)
-            return True
-
-        if "request_uri" in request.payload.data:
-            if not self.support_request_uri:
-                raise RequestUriNotSupportedError(state=request.payload.state)
-            return True
-
-        # When the value of it [require_signed_request_object] as client metadata is true,
-        # then the server MUST reject the authorization request
-        # from the client that does not conform to this specification.
-        if self.get_client_require_signed_request_object(client):
-            raise InvalidRequestError(
-                "Authorization requests for this client must use signed request objects.",
-                state=request.payload.state,
-            )
-
-        # When the value of it [require_signed_request_object] as server metadata is true,
-        # then the server MUST reject the authorization request
-        # from any client that does not conform to this specification.
-        metadata = self.get_server_metadata()
-        if metadata and metadata.get("require_signed_request_object", False):
-            raise InvalidRequestError(
-                "Authorization requests for this server must use signed request objects.",
-                state=request.payload.state,
-            )
-
-        return False
+        pass
 
     def _get_raw_request_object(self, request: OAuth2Request) -> str:
-        if "request_uri" in request.payload.data:
-            raw_request_object = self.get_request_object(
-                request.payload.data["request_uri"]
-            )
-            if not raw_request_object:
-                raise InvalidRequestUriError(state=request.payload.state)
-
-        else:
-            raw_request_object = request.payload.data["request"]
-
-        return raw_request_object
+        pass
 
     def _decode_request_object(
         self, request, client: ClientMixin, raw_request_object: str
     ):
-        jwks = self.resolve_client_public_key(client)
-        key = import_any_key(jwks)
-        algorithms = self.get_request_object_signing_algorithms(client)
-
-        try:
-            request_object = jwt.decode(raw_request_object, key, algorithms=algorithms)
-            self.claims_validator.validate(request_object.claims)
-        except UnsupportedAlgorithmError as error:
-            raise InvalidRequestError(
-                "Authorization requests must be signed with supported algorithms.",
-                state=request.payload.state,
-            ) from error
-        except DecodeError as error:
-            raise InvalidRequestObjectError(state=request.payload.state) from error
-        except JoseError as error:
-            raise InvalidRequestObjectError(
-                description=error.description or InvalidRequestObjectError.description,
-                state=request.payload.state,
-            ) from error
-
-        # The client ID values in the client_id request parameter and in
-        # the Request Object client_id claim MUST be identical.
-        if request_object.claims["client_id"] != request.payload.client_id:
-            raise InvalidRequestError(
-                "The 'client_id' claim from the request parameters "
-                "and the request object claims don't match.",
-                state=request.payload.state,
-            )
-
-        # The Request Object MAY be sent by value, as described in Section 5.1,
-        # or by reference, as described in Section 5.2. request and
-        # request_uri parameters MUST NOT be included in Request Objects.
-        if "request" in request_object.claims or "request_uri" in request_object.claims:
-            raise InvalidRequestError(
-                "The 'request' and 'request_uri' parameters must not be included in the request object.",
-                state=request.payload.state,
-            )
-
-        return request_object
+        pass
 
     def get_request_object(self, request_uri: str):
         """Download the request object at ``request_uri``.
@@ -261,7 +147,7 @@ class JWTAuthenticationRequest:
                     }
 
         """
-        return {}  # pragma: no cover
+        pass
 
     def get_client_require_signed_request_object(self, client: ClientMixin) -> bool:
         """Return the 'require_signed_request_object' client metadata.
@@ -276,4 +162,4 @@ class JWTAuthenticationRequest:
 
         If not implemented, the value is considered as :data:`False`.
         """
-        return False  # pragma: no cover
+        pass

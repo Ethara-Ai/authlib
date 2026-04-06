@@ -90,7 +90,7 @@ class UserInfoEndpoint:
             def get_supported_algorithms(self) -> list[str]:
                 return ["RS256"]
         """
-        return JWSRegistry.recommended
+        pass
 
     def generate_user_info(self, user, scope: str) -> UserInfo:
         """
@@ -130,4 +130,4 @@ class UserInfoEndpoint:
 
         This method must be implemented by developers to support JWT userinfo signing.
         """
-        return None  # pragma: no cover
+        pass

@@ -37,21 +37,7 @@ class ClientAuthentication:
         self._methods[method] = func
 
     def authenticate(self, request, methods, endpoint):
-        for method in methods:
-            func = self._methods[method]
-            client = func(self.query_client, request)
-            if client and client.check_endpoint_auth_method(method, endpoint):
-                request.auth_method = method
-                return client
-
-        if "client_secret_basic" in methods:
-            raise InvalidClientError(
-                status_code=401,
-                description=f"The client cannot authenticate with methods: {methods}",
-            )
-        raise InvalidClientError(
-            description=f"The client cannot authenticate with methods: {methods}",
-        )
+        pass
 
     def __call__(self, request, methods, endpoint="token"):
         return self.authenticate(request, methods, endpoint)
@@ -61,54 +47,22 @@ def authenticate_client_secret_basic(query_client, request):
     """Authenticate client by ``client_secret_basic`` method. The client
     uses HTTP Basic for authentication.
     """
-    client_id, client_secret = extract_basic_authorization(request.headers)
-    if client_id and client_secret:
-        client = _validate_client(query_client, client_id, 401)
-        if client.check_client_secret(client_secret):
-            log.debug(f'Authenticate {client_id} via "client_secret_basic" success')
-            return client
-    log.debug(f'Authenticate {client_id} via "client_secret_basic" failed')
+    pass
 
 
 def authenticate_client_secret_post(query_client, request):
     """Authenticate client by ``client_secret_post`` method. The client
     uses POST parameters for authentication.
     """
-    data = request.form
-    client_id = data.get("client_id")
-    client_secret = data.get("client_secret")
-    if client_id and client_secret:
-        client = _validate_client(query_client, client_id)
-        if client.check_client_secret(client_secret):
-            log.debug(f'Authenticate {client_id} via "client_secret_post" success')
-            return client
-    log.debug(f'Authenticate {client_id} via "client_secret_post" failed')
+    pass
 
 
 def authenticate_none(query_client, request):
     """Authenticate public client by ``none`` method. The client
     does not have a client secret.
     """
-    client_id = request.payload.client_id
-    if client_id and not request.payload.data.get("client_secret"):
-        client = _validate_client(query_client, client_id)
-        log.debug(f'Authenticate {client_id} via "none" success')
-        return client
-    log.debug(f'Authenticate {client_id} via "none" failed')
+    pass
 
 
 def _validate_client(query_client, client_id, status_code=400):
-    if client_id is None:
-        raise InvalidClientError(
-            status_code=status_code,
-            description="Missing 'client_id' parameter.",
-        )
-
-    client = query_client(client_id)
-    if not client:
-        raise InvalidClientError(
-            status_code=status_code,
-            description="The client does not exist on this server.",
-        )
-
-    return client
+    pass

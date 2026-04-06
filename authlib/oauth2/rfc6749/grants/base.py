@@ -28,7 +28,7 @@ class BaseGrant(Hookable):
 
     @property
     def client(self):
-        return self.request.client
+        pass
 
     def generate_token(
         self,
@@ -69,15 +69,11 @@ class BaseGrant(Hookable):
 
         :return: client
         """
-        client = self.server.authenticate_client(
-            self.request, self.TOKEN_ENDPOINT_AUTH_METHODS
-        )
-        self.server.send_signal("after_authenticate_client", client=client, grant=self)
-        return client
+        pass
 
     def save_token(self, token):
         """A method to save token into database."""
-        return self.server.save_token(token, self.request)
+        pass
 
     def validate_requested_scope(self):
         """Validate if requested scope is supported by Authorization Server."""
@@ -94,10 +90,7 @@ class TokenEndpointMixin:
 
     @classmethod
     def check_token_endpoint(cls, request: OAuth2Request):
-        return (
-            request.payload.grant_type == cls.GRANT_TYPE
-            and request.method in cls.TOKEN_ENDPOINT_HTTP_METHODS
-        )
+        pass
 
     def validate_token_request(self):
         raise NotImplementedError()
@@ -112,23 +105,11 @@ class AuthorizationEndpointMixin:
 
     @classmethod
     def check_authorization_endpoint(cls, request: OAuth2Request):
-        return request.payload.response_type in cls.RESPONSE_TYPES
+        pass
 
     @staticmethod
     def validate_authorization_redirect_uri(request: OAuth2Request, client):
-        if request.payload.redirect_uri:
-            if not client.check_redirect_uri(request.payload.redirect_uri):
-                raise InvalidRequestError(
-                    f"Redirect URI {request.payload.redirect_uri} is not supported by client.",
-                )
-            return request.payload.redirect_uri
-        else:
-            redirect_uri = client.get_default_redirect_uri()
-            if not redirect_uri:
-                raise InvalidRequestError(
-                    "Missing 'redirect_uri' in request.", state=request.payload.state
-                )
-            return redirect_uri
+        pass
 
     @staticmethod
     def validate_no_multiple_request_parameter(request: OAuth2Request):
@@ -137,19 +118,11 @@ class AuthorizationEndpointMixin:
 
         .. _`Section 3.1`: https://tools.ietf.org/html/rfc6749#section-3.1
         """
-        datalist = request.payload.datalist
-        parameters = ["response_type", "client_id", "redirect_uri", "scope", "state"]
-        for param in parameters:
-            if len(datalist.get(param, [])) > 1:
-                raise InvalidRequestError(
-                    f"Multiple '{param}' in request.", state=request.payload.state
-                )
+        pass
 
     @hooked
     def validate_consent_request(self):
-        redirect_uri = self.validate_authorization_request()
-        self.redirect_uri = redirect_uri
-        return redirect_uri
+        pass
 
     def validate_authorization_request(self):
         raise NotImplementedError()

@@ -10,33 +10,15 @@ from .rfc6750 import add_bearer_token
 
 
 def encode_client_secret_basic(client, method, uri, headers, body):
-    text = f"{client.client_id}:{client.client_secret}"
-    auth = to_native(base64.b64encode(to_bytes(text, "latin1")))
-    headers["Authorization"] = f"Basic {auth}"
-    return uri, headers, body
+    pass
 
 
 def encode_client_secret_post(client, method, uri, headers, body):
-    body = add_params_to_qs(
-        body or "",
-        [
-            ("client_id", client.client_id),
-            ("client_secret", client.client_secret or ""),
-        ],
-    )
-    if "Content-Length" in headers:
-        headers["Content-Length"] = str(len(body))
-    return uri, headers, body
+    pass
 
 
 def encode_none(client, method, uri, headers, body):
-    if method == "GET":
-        uri = add_params_to_uri(uri, [("client_id", client.client_id)])
-        return uri, headers, body
-    body = add_params_to_qs(body, [("client_id", client.client_id)])
-    if "Content-Length" in headers:
-        headers["Content-Length"] = str(len(body))
-    return uri, headers, body
+    pass
 
 
 class ClientAuth:
@@ -71,7 +53,7 @@ class ClientAuth:
         self.auth_method = auth_method
 
     def prepare(self, method, uri, headers, body):
-        return self.auth_method(self, method, uri, headers, body)
+        pass
 
 
 class TokenAuth:
@@ -96,19 +78,10 @@ class TokenAuth:
         self.hooks = set()
 
     def set_token(self, token):
-        self.token = OAuth2Token.from_dict(token)
+        pass
 
     def prepare(self, uri, headers, body):
-        token_type = self.token.get("token_type", self.DEFAULT_TOKEN_TYPE)
-        sign = self.SIGN_METHODS[token_type.lower()]
-        uri, headers, body = sign(
-            self.token["access_token"], uri, headers, body, self.token_placement
-        )
-
-        for hook in self.hooks:
-            uri, headers, body = hook(uri, headers, body)
-
-        return uri, headers, body
+        pass
 
     def __del__(self):
         del self.client

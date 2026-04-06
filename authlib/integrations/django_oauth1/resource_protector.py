@@ -39,31 +39,12 @@ class ResourceProtector(_ResourceProtector):
         return exists_nonce_in_cache(nonce, request, self._nonce_expires_in)
 
     def acquire_credential(self, request):
-        if request.method in ["POST", "PUT"]:
-            body = request.POST.dict()
-        else:
-            body = None
-
-        url = request.build_absolute_uri()
-        req = self.validate_request(request.method, url, body, request.headers)
-        return req.credential
+        pass
 
     def __call__(self, realm=None):
         def decorator(f):
             @functools.wraps(f)
-            def decorated(request, *args, **kwargs):
-                try:
-                    credential = self.acquire_credential(request)
-                    request.oauth1_credential = credential
-                except OAuth1Error as error:
-                    body = dict(error.get_body())
-                    resp = JsonResponse(body, status=error.status_code)
-                    resp["Cache-Control"] = "no-store"
-                    resp["Pragma"] = "no-cache"
-                    return resp
-                return f(request, *args, **kwargs)
-
-            return decorated
+            pass
 
         if callable(realm):
             return decorator(realm)

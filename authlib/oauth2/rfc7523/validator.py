@@ -20,7 +20,7 @@ class JWTBearerToken(TokenMixin, dict):
         return self.get("scope")
 
     def get_expires_in(self):
-        return self["exp"] - self["iat"]
+        pass
 
     def is_expired(self):
         return self["exp"] < time.time()

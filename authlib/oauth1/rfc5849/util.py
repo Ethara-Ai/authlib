@@ -7,4 +7,4 @@ def escape(s):
 
 
 def unescape(s):
-    return unquote(s)
+    pass

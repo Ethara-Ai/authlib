@@ -115,13 +115,7 @@ class JsonWebToken:
 
 
 def decode_payload(bytes_payload):
-    try:
-        payload = json_loads(to_unicode(bytes_payload))
-    except ValueError as exc:
-        raise DecodeError("Invalid payload value") from exc
-    if not isinstance(payload, dict):
-        raise DecodeError("Invalid payload type")
-    return payload
+    pass
 
 
 def prepare_raw_key(raw):
@@ -169,23 +163,6 @@ def find_encode_key(key, header):
 
 def create_load_key(key):
     def load_key(header, payload):
-        if isinstance(key, KeySet):
-            return key.find_by_kid(header.get("kid"))
-
-        if isinstance(key, dict) and "keys" in key:
-            keys = key["keys"]
-            kid = header.get("kid")
-
-            if kid is not None:
-                # look for the requested key
-                for k in keys:
-                    if k.get("kid") == kid:
-                        return k
-            else:
-                # use the only key
-                if len(keys) == 1:
-                    return keys[0]
-            raise ValueError("Invalid JSON Web Key Set")
-        return key
+        pass
 
     return load_key

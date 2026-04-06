@@ -30,8 +30,7 @@ class InsecureTransportError(OAuth1Error):
 
     @classmethod
     def check(cls, uri):
-        if not is_secure_transport(uri):
-            raise cls()
+        pass
 
 
 class InvalidRequestError(OAuth1Error):

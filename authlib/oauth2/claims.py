@@ -39,10 +39,7 @@ class BaseClaims(dict):
         self.params = params or {}
 
     def _extract_validate_hooks(self, options: dict[str, ClaimsOption]):
-        for key in options:
-            validate = options[key].pop("validate", None)
-            if validate:
-                self._validate_hooks[key] = validate
+        pass
 
     def _run_validate_hooks(self):
         for key in self._validate_hooks:
@@ -51,11 +48,7 @@ class BaseClaims(dict):
                 raise InvalidClaimError(key)
 
     def get_registered_claims(self):
-        rv = {}
-        for k in self.REGISTERED_CLAIMS:
-            if k in self:
-                rv[k] = self[k]
-        return rv
+        pass
 
     def validate(self, now=None, leeway=0):
         validator = self.registry_cls(**self.options)

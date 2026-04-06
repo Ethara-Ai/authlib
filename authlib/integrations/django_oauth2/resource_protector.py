@@ -19,15 +19,7 @@ class ResourceProtector(_ResourceProtector):
         :param scopes: a list of scope values
         :return: token object
         """
-        req = DjangoJsonRequest(request)
-        # backward compatibility
-        kwargs["scopes"] = scopes
-        for claim in kwargs:
-            if isinstance(kwargs[claim], str):
-                kwargs[claim] = [kwargs[claim]]
-        token = self.validate_request(request=req, **kwargs)
-        token_authenticated.send(sender=self.__class__, token=token)
-        return token
+        pass
 
     def __call__(self, scopes=None, optional=False, **kwargs):
         claims = kwargs
@@ -35,20 +27,7 @@ class ResourceProtector(_ResourceProtector):
 
         def decorator(f):
             @functools.wraps(f)
-            def decorated(request, *args, **kwargs):
-                try:
-                    token = self.acquire_token(request, **claims)
-                    request.oauth_token = token
-                except MissingAuthorizationError as error:
-                    if optional:
-                        request.oauth_token = None
-                        return f(request, *args, **kwargs)
-                    return return_error_response(error)
-                except OAuth2Error as error:
-                    return return_error_response(error)
-                return f(request, *args, **kwargs)
-
-            return decorated
+            pass
 
         if callable(scopes):
             return decorator(scopes)
@@ -68,9 +47,4 @@ class BearerTokenValidator(_BearerTokenValidator):
 
 
 def return_error_response(error):
-    body = dict(error.get_body())
-    resp = JsonResponse(body, status=error.status_code)
-    headers = error.get_headers()
-    for k, v in headers:
-        resp[k] = v
-    return resp
+    pass

@@ -16,19 +16,11 @@ class DjangoOAuth2Payload(OAuth2Payload):
 
     @cached_property
     def data(self):
-        data = {}
-        data.update(self._request.GET.dict())
-        data.update(self._request.POST.dict())
-        return data
+        pass
 
     @cached_property
     def datalist(self):
-        values = defaultdict(list)
-        for k in self._request.GET:
-            values[k].extend(self._request.GET.getlist(k))
-        for k in self._request.POST:
-            values[k].extend(self._request.POST.getlist(k))
-        return values
+        pass
 
 
 class DjangoOAuth2Request(OAuth2Request):
@@ -43,11 +35,11 @@ class DjangoOAuth2Request(OAuth2Request):
 
     @property
     def args(self):
-        return self._request.GET
+        pass
 
     @property
     def form(self):
-        return self._request.POST
+        pass
 
 
 class DjangoJsonPayload(JsonPayload):
@@ -56,7 +48,7 @@ class DjangoJsonPayload(JsonPayload):
 
     @cached_property
     def data(self):
-        return json_loads(self._request.body)
+        pass
 
 
 class DjangoJsonRequest(JsonRequest):

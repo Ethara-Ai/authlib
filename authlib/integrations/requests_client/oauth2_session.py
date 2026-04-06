@@ -127,7 +127,7 @@ class OAuth2Session(OAuth2Client, Session):
 
     def fetch_access_token(self, url=None, **kwargs):
         """Alias for fetch_token."""
-        return self.fetch_token(url, **kwargs)
+        pass
 
     def request(self, method, url, withhold_token=False, auth=None, **kwargs):
         """Send request with auto refresh token feature (if available)."""

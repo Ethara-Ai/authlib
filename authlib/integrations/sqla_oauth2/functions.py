@@ -8,12 +8,7 @@ def create_query_client_func(session, client_model):
     :param session: SQLAlchemy session
     :param client_model: Client model class
     """
-
-    def query_client(client_id):
-        q = session.query(client_model)
-        return q.filter_by(client_id=client_id).first()
-
-    return query_client
+    pass
 
 
 def create_save_token_func(session, token_model):
@@ -23,18 +18,7 @@ def create_save_token_func(session, token_model):
     :param session: SQLAlchemy session
     :param token_model: Token model class
     """
-
-    def save_token(token, request):
-        if request.user:
-            user_id = request.user.get_user_id()
-        else:
-            user_id = None
-        client = request.client
-        item = token_model(client_id=client.client_id, user_id=user_id, **token)
-        session.add(item)
-        session.commit()
-
-    return save_token
+    pass
 
 
 def create_query_token_func(session, token_model):
@@ -67,24 +51,7 @@ def create_revocation_endpoint(session, token_model):
     :param session: SQLAlchemy session
     :param token_model: Token model class
     """
-    from authlib.oauth2.rfc7009 import RevocationEndpoint
-
-    query_token = create_query_token_func(session, token_model)
-
-    class _RevocationEndpoint(RevocationEndpoint):
-        def query_token(self, token, token_type_hint):
-            return query_token(token, token_type_hint)
-
-        def revoke_token(self, token, request):
-            now = int(time.time())
-            hint = request.form.get("token_type_hint")
-            token.access_token_revoked_at = now
-            if hint != "access_token":
-                token.refresh_token_revoked_at = now
-            session.add(token)
-            session.commit()
-
-    return _RevocationEndpoint
+    pass
 
 
 def create_bearer_token_validator(session, token_model):
@@ -94,11 +61,4 @@ def create_bearer_token_validator(session, token_model):
     :param session: SQLAlchemy session
     :param token_model: Token model class
     """
-    from authlib.oauth2.rfc6750 import BearerTokenValidator
-
-    class _BearerTokenValidator(BearerTokenValidator):
-        def authenticate_token(self, token_string):
-            q = session.query(token_model)
-            return q.filter_by(access_token=token_string).first()
-
-    return _BearerTokenValidator
+    pass

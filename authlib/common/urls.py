@@ -103,11 +103,11 @@ def quote(s, safe=b"/"):
 
 
 def unquote(s):
-    return to_unicode(_unquote(s))
+    pass
 
 
 def quote_url(s):
-    return quote(s, b"~@#$&()*!+=:;,.?/'")
+    pass
 
 
 def extract_params(raw):

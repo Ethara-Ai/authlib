@@ -15,14 +15,11 @@ class FlaskOAuth2Payload(OAuth2Payload):
 
     @property
     def data(self):
-        return self._request.values
+        pass
 
     @cached_property
     def datalist(self):
-        values = defaultdict(list)
-        for k in self.data:
-            values[k].extend(self.data.getlist(k))
-        return values
+        pass
 
 
 class FlaskOAuth2Request(OAuth2Request):
@@ -35,11 +32,11 @@ class FlaskOAuth2Request(OAuth2Request):
 
     @property
     def args(self):
-        return self._request.args
+        pass
 
     @property
     def form(self):
-        return self._request.form
+        pass
 
 
 class FlaskJsonPayload(JsonPayload):
@@ -48,7 +45,7 @@ class FlaskJsonPayload(JsonPayload):
 
     @property
     def data(self):
-        return self._request.get_json()
+        pass
 
 
 class FlaskJsonRequest(JsonRequest):

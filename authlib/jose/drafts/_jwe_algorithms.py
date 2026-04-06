@@ -36,13 +36,7 @@ class ECDH1PUAlgorithm(JWEAlgorithmWithTagAwareKeyAgreement):
         return ECKey.import_key(raw_data)
 
     def generate_preset(self, enc_alg, key):
-        epk = self._generate_ephemeral_key(key)
-        h = self._prepare_headers(epk)
-        preset = {"epk": epk, "header": h}
-        if self.key_size is not None:
-            cek = enc_alg.generate_cek()
-            preset["cek"] = cek
-        return preset
+        pass
 
     def compute_shared_key(self, shared_key_e, shared_key_s):
         return shared_key_e + shared_key_s
@@ -212,5 +206,4 @@ JWE_DRAFT_ALG_ALGORITHMS = [
 
 
 def register_jwe_alg_draft(cls):
-    for alg in JWE_DRAFT_ALG_ALGORITHMS:
-        cls.register_algorithm(alg)
+    pass

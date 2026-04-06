@@ -83,31 +83,7 @@ class ResourceOwnerPasswordCredentialsGrant(BaseGrant, TokenEndpointMixin):
 
             grant_type=password&username=johndoe&password=A3ddj3w
         """
-        # ignore validate for grant_type, since it is validated by
-        # check_token_endpoint
-        client = self.authenticate_token_endpoint_client()
-        log.debug("Validate token request of %r", client)
-
-        if not client.check_grant_type(self.GRANT_TYPE):
-            raise UnauthorizedClientError(
-                f"The client is not authorized to use 'grant_type={self.GRANT_TYPE}'"
-            )
-
-        params = self.request.form
-        if "username" not in params:
-            raise InvalidRequestError("Missing 'username' in request.")
-        if "password" not in params:
-            raise InvalidRequestError("Missing 'password' in request.")
-
-        log.debug("Authenticate user of %r", params["username"])
-        user = self.authenticate_user(params["username"], params["password"])
-        if not user:
-            raise InvalidRequestError(
-                "Invalid 'username' or 'password' in request.",
-            )
-        self.request.client = client
-        self.request.user = user
-        self.validate_requested_scope()
+        pass
 
     @hooked
     def create_token_response(self):
@@ -136,12 +112,7 @@ class ResourceOwnerPasswordCredentialsGrant(BaseGrant, TokenEndpointMixin):
 
         :returns: (status_code, body, headers)
         """
-        user = self.request.user
-        scope = self.request.payload.scope
-        token = self.generate_token(user=user, scope=scope)
-        log.debug("Issue token %r to %r", token, self.client)
-        self.save_token(token)
-        return 200, token, self.TOKEN_RESPONSE_HEADER
+        pass
 
     def authenticate_user(self, username, password):
         """Validate the resource owner password credentials using its

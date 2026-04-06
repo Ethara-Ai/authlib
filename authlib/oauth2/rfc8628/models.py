@@ -23,10 +23,10 @@ class DeviceCredentialDict(dict, DeviceCredentialMixin):
         return self.get("scope")
 
     def get_user_code(self):
-        return self["user_code"]
+        pass
 
     def get_nonce(self):
-        return self.get("nonce")
+        pass
 
     def get_auth_time(self):
         return self.get("auth_time")

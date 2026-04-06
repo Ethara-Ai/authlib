@@ -27,7 +27,7 @@ class OAuth2AuthorizationCodeMixin(AuthorizationCodeMixin):
         return self.auth_time + 300 < time.time()
 
     def get_redirect_uri(self):
-        return self.redirect_uri
+        pass
 
     def get_scope(self):
         return self.scope
@@ -42,7 +42,7 @@ class OAuth2AuthorizationCodeMixin(AuthorizationCodeMixin):
         return self.amr.split() if self.amr else []
 
     def get_nonce(self):
-        return self.nonce
+        pass
 
 
 class OAuth2TokenMixin(TokenMixin):
@@ -63,7 +63,7 @@ class OAuth2TokenMixin(TokenMixin):
         return self.scope
 
     def get_expires_in(self):
-        return self.expires_in
+        pass
 
     def is_revoked(self):
         return self.access_token_revoked_at or self.refresh_token_revoked_at

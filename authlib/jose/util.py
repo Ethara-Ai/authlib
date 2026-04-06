@@ -34,13 +34,4 @@ def extract_segment(segment, error_cls, name="payload"):
 
 
 def ensure_dict(s, structure_name):
-    if not isinstance(s, dict):
-        try:
-            s = json_loads(to_unicode(s))
-        except (ValueError, TypeError) as exc:
-            raise DecodeError(f"Invalid {structure_name}") from exc
-
-    if not isinstance(s, dict):
-        raise DecodeError(f"Invalid {structure_name}")
-
-    return s
+    pass

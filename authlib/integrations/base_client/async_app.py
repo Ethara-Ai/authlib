@@ -25,24 +25,7 @@ class AsyncOAuth1Mixin(OAuth1Base):
         :param kwargs: Extra parameters to include.
         :return: dict
         """
-        if not self.authorize_url:
-            raise RuntimeError('Missing "authorize_url" value')
-
-        if self.authorize_params:
-            kwargs.update(self.authorize_params)
-
-        async with self._get_oauth_client() as client:
-            client.redirect_uri = redirect_uri
-            params = {}
-            if self.request_token_params:
-                params.update(self.request_token_params)
-            request_token = await client.fetch_request_token(
-                self.request_token_url, **params
-            )
-            log.debug(f"Fetch request token: {request_token!r}")
-            url = client.create_authorization_url(self.authorize_url, **kwargs)
-            state = request_token["oauth_token"]
-        return {"url": url, "request_token": request_token, "state": state}
+        pass
 
     async def fetch_access_token(self, request_token=None, **kwargs):
         """Fetch access token in one step.
@@ -51,27 +34,12 @@ class AsyncOAuth1Mixin(OAuth1Base):
         :param kwargs: Extra parameters to fetch access token.
         :return: A token dict.
         """
-        async with self._get_oauth_client() as client:
-            if request_token is None:
-                raise MissingRequestTokenError()
-            # merge request token with verifier
-            token = {}
-            token.update(request_token)
-            token.update(kwargs)
-            client.token = token
-            params = self.access_token_params or {}
-            token = await client.fetch_access_token(self.access_token_url, **params)
-        return token
+        pass
 
 
 class AsyncOAuth2Mixin(OAuth2Base):
     async def _on_update_token(self, token, refresh_token=None, access_token=None):
-        if self._update_token:
-            await self._update_token(
-                token,
-                refresh_token=refresh_token,
-                access_token=access_token,
-            )
+        pass
 
     async def load_server_metadata(self):
         if self._server_metadata_url and "_loaded_at" not in self.server_metadata:
@@ -97,21 +65,7 @@ class AsyncOAuth2Mixin(OAuth2Base):
         :param kwargs: Extra parameters to include.
         :return: dict
         """
-        metadata = await self.load_server_metadata()
-        authorization_endpoint = self.authorize_url or metadata.get(
-            "authorization_endpoint"
-        )
-        if not authorization_endpoint:
-            raise RuntimeError('Missing "authorize_url" value')
-
-        if self.authorize_params:
-            kwargs.update(self.authorize_params)
-
-        async with self._get_oauth_client(**metadata) as client:
-            client.redirect_uri = redirect_uri
-            return self._create_oauth2_authorization_url(
-                client, authorization_endpoint, **kwargs
-            )
+        pass
 
     async def fetch_access_token(self, redirect_uri=None, **kwargs):
         """Fetch access token in the final step.
@@ -121,17 +75,7 @@ class AsyncOAuth2Mixin(OAuth2Base):
         :param kwargs: Extra parameters to fetch access token.
         :return: A token dict.
         """
-        metadata = await self.load_server_metadata()
-        token_endpoint = self.access_token_url or metadata.get("token_endpoint")
-        async with self._get_oauth_client(**metadata) as client:
-            if redirect_uri is not None:
-                client.redirect_uri = redirect_uri
-            params = {}
-            if self.access_token_params:
-                params.update(self.access_token_params)
-            params.update(kwargs)
-            token = await client.fetch_token(token_endpoint, **params)
-        return token
+        pass
 
 
 async def _http_request(ctx, session, method, url, token, kwargs):

@@ -50,11 +50,7 @@ class EndSessionRequest(EndpointRequest):
     @property
     def needs_confirmation(self) -> bool:
         """Whether user confirmation is recommended before logout."""
-
-        # rpinitiated §6: "Logout requests without a valid id_token_hint value are a
-        # potential means of denial of service; therefore, OPs should obtain
-        # explicit confirmation from the End-User before acting upon them."
-        return self.id_token_claims is None
+        pass
 
 
 class EndSessionEndpoint(Endpoint):

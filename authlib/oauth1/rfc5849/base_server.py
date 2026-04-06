@@ -38,7 +38,7 @@ class BaseServer:
 
             Server.register_signature_method("custom-name", verify_custom_method)
         """
-        cls.SIGNATURE_METHODS[name] = verify
+        pass
 
     def validate_timestamp_and_nonce(self, request):
         """Validate ``oauth_timestamp`` and ``oauth_nonce`` in HTTP request.

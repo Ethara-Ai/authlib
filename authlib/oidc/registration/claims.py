@@ -57,42 +57,7 @@ class ClientMetadataClaims(BaseClaims):
     @classmethod
     def get_claims_options(self, metadata):
         """Generate claims options validation from Authorization Server metadata."""
-        options = {}
-
-        if acr_values_supported := metadata.get("acr_values_supported"):
-
-            def _validate_default_acr_values(claims, value):
-                return not value or set(value).issubset(set(acr_values_supported))
-
-            options["default_acr_values"] = {"validate": _validate_default_acr_values}
-
-        values_mapping = {
-            "token_endpoint_auth_signing_alg_values_supported": "token_endpoint_auth_signing_alg",
-            "subject_types_supported": "subject_type",
-            "id_token_signing_alg_values_supported": "id_token_signed_response_alg",
-            "id_token_encryption_alg_values_supported": "id_token_encrypted_response_alg",
-            "id_token_encryption_enc_values_supported": "id_token_encrypted_response_enc",
-            "userinfo_signing_alg_values_supported": "userinfo_signed_response_alg",
-            "userinfo_encryption_alg_values_supported": "userinfo_encrypted_response_alg",
-            "userinfo_encryption_enc_values_supported": "userinfo_encrypted_response_enc",
-            "request_object_signing_alg_values_supported": "request_object_signing_alg",
-            "request_object_encryption_alg_values_supported": "request_object_encryption_alg",
-            "request_object_encryption_enc_values_supported": "request_object_encryption_enc",
-        }
-
-        def make_validator(metadata_claim_values):
-            def _validate(claims, value):
-                return not value or value in metadata_claim_values
-
-            return _validate
-
-        for metadata_claim_name, request_claim_name in values_mapping.items():
-            if metadata_claim_values := metadata.get(metadata_claim_name):
-                options[request_claim_name] = {
-                    "validate": make_validator(metadata_claim_values)
-                }
-
-        return options
+        pass
 
     def validate_token_endpoint_auth_signing_alg(self):
         """JWS [JWS] alg algorithm [JWA] that MUST be used for signing the JWT [JWT]

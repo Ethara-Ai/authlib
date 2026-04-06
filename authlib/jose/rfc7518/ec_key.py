@@ -52,10 +52,7 @@ class ECKey(AsymmetricKey):
 
     @property
     def curve_key_size(self):
-        raw_key = self.get_private_key()
-        if not raw_key:
-            raw_key = self.public_key
-        return raw_key.curve.key_size
+        pass
 
     def load_private_key(self):
         curve = self.DSS_CURVES[self._dict_data["crv"]]()

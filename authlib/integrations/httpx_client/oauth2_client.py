@@ -34,30 +34,14 @@ class OAuth2Auth(Auth, TokenAuth):
     requires_request_body = True
 
     def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:
-        try:
-            url, headers, body = self.prepare(
-                str(request.url), request.headers, request.content
-            )
-            headers["Content-Length"] = str(len(body))
-            yield build_request(
-                url=url, headers=headers, body=body, initial_request=request
-            )
-        except KeyError as error:
-            description = f"Unsupported token_type: {str(error)}"
-            raise UnsupportedTokenTypeError(description=description) from error
+        pass
 
 
 class OAuth2ClientAuth(Auth, ClientAuth):
     requires_request_body = True
 
     def auth_flow(self, request: Request) -> typing.Generator[Request, Response, None]:
-        url, headers, body = self.prepare(
-            request.method, str(request.url), request.headers, request.content
-        )
-        headers["Content-Length"] = str(len(body))
-        yield build_request(
-            url=url, headers=headers, body=body, initial_request=request
-        )
+        pass
 
 
 class AsyncOAuth2Client(_OAuth2Client, httpx.AsyncClient):
@@ -122,16 +106,7 @@ class AsyncOAuth2Client(_OAuth2Client, httpx.AsyncClient):
     async def stream(
         self, method, url, withhold_token=False, auth=USE_CLIENT_DEFAULT, **kwargs
     ):
-        if not withhold_token and auth is USE_CLIENT_DEFAULT:
-            if not self.token:
-                raise MissingTokenError()
-
-            await self.ensure_active_token(self.token)
-
-            auth = self.token_auth
-
-        async with super().stream(method, url, auth=auth, **kwargs) as resp:
-            yield resp
+        pass
 
     async def ensure_active_token(self, token):
         async with self._token_refresh_lock:
@@ -273,13 +248,4 @@ class OAuth2Client(_OAuth2Client, httpx.Client):
     def stream(
         self, method, url, withhold_token=False, auth=USE_CLIENT_DEFAULT, **kwargs
     ):
-        if not withhold_token and auth is USE_CLIENT_DEFAULT:
-            if not self.token:
-                raise MissingTokenError()
-
-            if not self.ensure_active_token(self.token):
-                raise InvalidTokenError()
-
-            auth = self.token_auth
-
-        return super().stream(method, url, auth=auth, **kwargs)
+        pass

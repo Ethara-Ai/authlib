@@ -59,18 +59,7 @@ class ResourceProtector(_ResourceProtector):
             self.init_app(app)
 
     def init_app(self, app, query_client=None, query_token=None, exists_nonce=None):
-        if query_client is not None:
-            self.query_client = query_client
-        if query_token is not None:
-            self.query_token = query_token
-        if exists_nonce is not None:
-            self._exists_nonce = exists_nonce
-
-        methods = app.config.get("OAUTH1_SUPPORTED_SIGNATURE_METHODS")
-        if methods and isinstance(methods, (list, tuple)):
-            self.SUPPORTED_SIGNATURE_METHODS = methods
-
-        self.app = app
+        pass
 
     def get_client_by_id(self, client_id):
         return self.query_client(client_id)
@@ -88,28 +77,12 @@ class ResourceProtector(_ResourceProtector):
         return self._exists_nonce(nonce, timestamp, client_id, token)
 
     def acquire_credential(self):
-        req = self.validate_request(
-            _req.method, _req.url, _req.form.to_dict(flat=True), _req.headers
-        )
-        g.authlib_server_oauth1_credential = req.credential
-        return req.credential
+        pass
 
     def __call__(self, scope=None):
         def decorator(f):
             @functools.wraps(f)
-            def decorated(*args, **kwargs):
-                try:
-                    self.acquire_credential()
-                except OAuth1Error as error:
-                    body = dict(error.get_body())
-                    return Response(
-                        json.dumps(body),
-                        status=error.status_code,
-                        headers=default_json_headers,
-                    )
-                return f(*args, **kwargs)
-
-            return decorated
+            pass
 
         if callable(scope):
             return decorator(scope)
@@ -117,7 +90,7 @@ class ResourceProtector(_ResourceProtector):
 
 
 def _get_current_credential():
-    return g.get("authlib_server_oauth1_credential")
+    pass
 
 
 current_credential = LocalProxy(_get_current_credential)

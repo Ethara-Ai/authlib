@@ -60,9 +60,7 @@ class JWSHeader(dict):
 
     @classmethod
     def from_dict(cls, obj):
-        if isinstance(obj, cls):
-            return obj
-        return cls(obj.get("protected"), obj.get("header"))
+        pass
 
 
 class JWSObject(dict):
@@ -80,5 +78,4 @@ class JWSObject(dict):
     @property
     def headers(self):
         """Alias of ``header`` for JSON typed JWS."""
-        if self.type == "json":
-            return self["header"]
+        pass

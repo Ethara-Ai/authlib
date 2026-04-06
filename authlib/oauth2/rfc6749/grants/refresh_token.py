@@ -37,38 +37,13 @@ class RefreshTokenGrant(BaseGrant, TokenEndpointMixin):
         # require client authentication for confidential clients or for any
         # client that was issued client credentials (or with other
         # authentication requirements)
-        client = self.authenticate_token_endpoint_client()
-        log.debug("Validate token request of %r", client)
-
-        if not client.check_grant_type(self.GRANT_TYPE):
-            raise UnauthorizedClientError(
-                f"The client is not authorized to use 'grant_type={self.GRANT_TYPE}'"
-            )
-
-        return client
+        pass
 
     def _validate_request_token(self, client):
-        refresh_token = self.request.form.get("refresh_token")
-        if refresh_token is None:
-            raise InvalidRequestError("Missing 'refresh_token' in request.")
-
-        token = self.authenticate_refresh_token(refresh_token)
-        if not token or not token.check_client(client):
-            raise InvalidGrantError()
-        return token
+        pass
 
     def _validate_token_scope(self, token):
-        scope = self.request.payload.scope
-        if not scope:
-            return
-
-        original_scope = token.get_scope()
-        if not original_scope:
-            raise InvalidScopeError()
-
-        original_scope = set(scope_to_list(original_scope))
-        if not original_scope.issuperset(set(scope_to_list(scope))):
-            raise InvalidScopeError()
+        pass
 
     def validate_token_request(self):
         """If the authorization server issued a refresh token to the client, the
@@ -104,11 +79,7 @@ class RefreshTokenGrant(BaseGrant, TokenEndpointMixin):
 
             grant_type=refresh_token&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA
         """
-        client = self._validate_request_client()
-        self.request.client = client
-        refresh_token = self._validate_request_token(client)
-        self._validate_token_scope(refresh_token)
-        self.request.refresh_token = refresh_token
+        pass
 
     @hooked
     def create_token_response(self):
@@ -117,31 +88,10 @@ class RefreshTokenGrant(BaseGrant, TokenEndpointMixin):
         verification or is invalid, the authorization server returns an error
         response as described in Section 5.2.
         """
-        refresh_token = self.request.refresh_token
-        user = self.authenticate_user(refresh_token)
-        if not user:
-            raise InvalidRequestError("There is no 'user' for this token.")
-
-        client = self.request.client
-        token = self.issue_token(user, refresh_token)
-        log.debug("Issue token %r to %r", token, client)
-
-        self.request.user = user
-        self.save_token(token)
-        self.revoke_old_credential(refresh_token)
-        return 200, token, self.TOKEN_RESPONSE_HEADER
+        pass
 
     def issue_token(self, user, refresh_token):
-        scope = self.request.payload.scope
-        if not scope:
-            scope = refresh_token.get_scope()
-
-        token = self.generate_token(
-            user=user,
-            scope=scope,
-            include_refresh_token=self.INCLUDE_NEW_REFRESH_TOKEN,
-        )
-        return token
+        pass
 
     def authenticate_refresh_token(self, refresh_token):
         """Get token information with refresh_token string. Developers MUST

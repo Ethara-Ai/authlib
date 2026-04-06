@@ -53,11 +53,11 @@ class AssertionClient:
 
     @property
     def token(self):
-        return self.token_auth.token
+        pass
 
     @token.setter
     def token(self, token):
-        self.token_auth.set_token(token)
+        pass
 
     def refresh_token(self):
         """Using Assertions as Authorization Grants to refresh token as

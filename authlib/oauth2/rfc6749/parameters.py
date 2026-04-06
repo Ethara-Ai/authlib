@@ -45,25 +45,7 @@ def prepare_grant_uri(
     .. _`Section 3.3`: https://tools.ietf.org/html/rfc6749#section-3.3
     .. _`section 10.12`: https://tools.ietf.org/html/rfc6749#section-10.12
     """
-    params = [("response_type", response_type), ("client_id", client_id)]
-
-    if redirect_uri:
-        params.append(("redirect_uri", redirect_uri))
-    if scope:
-        params.append(("scope", list_to_scope(scope)))
-    if state:
-        params.append(("state", state))
-
-    for k, value in kwargs.items():
-        if value is not None:
-            if isinstance(value, (list, tuple)):
-                for v in value:
-                    if v is not None:
-                        params.append((to_unicode(k), v))
-            else:
-                params.append((to_unicode(k), value))
-
-    return add_params_to_uri(uri, params)
+    pass
 
 
 def prepare_token_request(grant_type, body="", redirect_uri=None, **kwargs):

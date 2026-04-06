@@ -30,6 +30,4 @@ class OAuth2Token(dict):
 
     @classmethod
     def from_dict(cls, token):
-        if isinstance(token, dict) and not isinstance(token, cls):
-            token = cls(token)
-        return token
+        pass

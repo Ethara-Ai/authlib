@@ -13,8 +13,7 @@ class KeySet:
 
     def as_json(self, is_private=False, **params):
         """Represent this key set as a JSON string."""
-        obj = self.as_dict(is_private, **params)
-        return json_dumps(obj)
+        pass
 
     def find_by_kid(self, kid, **params):
         """Find the key matches the given kid value.

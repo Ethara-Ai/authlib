@@ -7,17 +7,7 @@ def invalid_error_characters(text: str) -> list[str]:
 
     https://datatracker.ietf.org/doc/html/rfc6749#section-4.1.2.1
     """
-    valid_ranges = [
-        (0x20, 0x21),
-        (0x23, 0x5B),
-        (0x5D, 0x7E),
-    ]
-
-    return [
-        char
-        for char in set(text)
-        if not any(start <= ord(char) <= end for start, end in valid_ranges)
-    ]
+    pass
 
 
 class OAuth2Error(AuthlibHTTPError):
